@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/mapping-table.css";
 import "../styles/modal-tree.css";
+import "../styles/sensor-modal.css";
 
 /* Моковые данные для древовидной структуры */
 const STM_MODEL_TREE = {
@@ -81,17 +82,107 @@ const STM_MODEL_TREE = {
   ]
 };
 
-/* Моковые данные датчиков */
+/* Моковые данные датчиков с текущими значениями и историей */
 const SENSORS = [
-  { id: "T-101", name: "Датчик температуры T-101", type: "temperature" },
-  { id: "T-102", name: "Датчик температуры T-102", type: "temperature" },
-  { id: "P-201", name: "Датчик давления P-201", type: "pressure" },
-  { id: "P-202", name: "Датчик давления P-202", type: "pressure" },
-  { id: "F-301", name: "Датчик расхода F-301", type: "flow" },
-  { id: "F-302", name: "Датчик расхода F-302", type: "flow" },
-  { id: "L-401", name: "Датчик уровня L-401", type: "level" },
-  { id: "Q-501", name: "Датчик качества Q-501", type: "quality" },
+  { 
+    id: "T-101", 
+    name: "Датчик температуры T-101", 
+    type: "temperature",
+    currentValue: 85.3,
+    unit: "°C",
+    status: "normal",
+    lastUpdate: "2024-03-15 14:30:25",
+    history: generateMockHistory(85, 90, 24)
+  },
+  { 
+    id: "T-102", 
+    name: "Датчик температуры T-102", 
+    type: "temperature",
+    currentValue: 72.1,
+    unit: "°C",
+    status: "warning",
+    lastUpdate: "2024-03-15 14:29:50",
+    history: generateMockHistory(70, 75, 24)
+  },
+  { 
+    id: "P-201", 
+    name: "Датчик давления P-201", 
+    type: "pressure",
+    currentValue: 15.2,
+    unit: "МПа",
+    status: "normal",
+    lastUpdate: "2024-03-15 14:31:10",
+    history: generateMockHistory(14.5, 16, 24)
+  },
+  { 
+    id: "P-202", 
+    name: "Датчик давления P-202", 
+    type: "pressure",
+    currentValue: 8.7,
+    unit: "МПа",
+    status: "normal",
+    lastUpdate: "2024-03-15 14:30:45",
+    history: generateMockHistory(8, 9.5, 24)
+  },
+  { 
+    id: "F-301", 
+    name: "Датчик расхода F-301", 
+    type: "flow",
+    currentValue: 1250.5,
+    unit: "м³/ч",
+    status: "normal",
+    lastUpdate: "2024-03-15 14:30:15",
+    history: generateMockHistory(1200, 1300, 24)
+  },
+  { 
+    id: "F-302", 
+    name: "Датчик расхода F-302", 
+    type: "flow",
+    currentValue: 980.3,
+    unit: "м³/ч",
+    status: "normal",
+    lastUpdate: "2024-03-15 14:29:30",
+    history: generateMockHistory(950, 1050, 24)
+  },
+  { 
+    id: "L-401", 
+    name: "Датчик уровня L-401", 
+    type: "level",
+    currentValue: 68.5,
+    unit: "%",
+    status: "warning",
+    lastUpdate: "2024-03-15 14:31:30",
+    history: generateMockHistory(65, 70, 24)
+  },
+  { 
+    id: "Q-501", 
+    name: "Датчик качества Q-501", 
+    type: "quality",
+    currentValue: 95.7,
+    unit: "%",
+    status: "normal",
+    lastUpdate: "2024-03-15 14:30:05",
+    history: generateMockHistory(94, 97, 24)
+  },
 ];
+
+/* Функция генерации моковых исторических данных */
+function generateMockHistory(min, max, points) {
+  return Array.from({ length: points }, (_, i) => {
+    const timestamp = new Date();
+    timestamp.setHours(timestamp.getHours() - (points - i - 1));
+    
+    // Генерация значения с небольшим случайным отклонением
+    const base = min + (max - min) * (i / points);
+    const randomDeviation = (Math.random() - 0.5) * (max - min) * 0.1;
+    const value = Math.max(min, Math.min(max, base + randomDeviation));
+    
+    return {
+      timestamp: timestamp.toISOString(),
+      value: parseFloat(value.toFixed(2))
+    };
+  });
+}
 
 /* Компонент модального окна с деревом параметров */
 function ParameterModal({ isOpen, onClose, onSelectParameter }) {
@@ -196,10 +287,207 @@ function ParameterModal({ isOpen, onClose, onSelectParameter }) {
   );
 }
 
+/* Компонент модального окна с графиком датчика */
+function SensorChartModal({ isOpen, onClose, sensor }) {
+  const [timeRange, setTimeRange] = useState("24h");
+
+  if (!isOpen || !sensor) return null;
+
+  const formatValue = (value) => {
+    return `${value} ${sensor.unit}`;
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "normal": return "#10b981";
+      case "warning": return "#f59e0b";
+      case "error": return "#ef4444";
+      default: return "#6b7280";
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch (status) {
+      case "normal": return "Норма";
+      case "warning": return "Предупреждение";
+      case "error": return "Авария";
+      default: return "Неизвестно";
+    }
+  };
+
+  // Определяем min/max для графика
+  const values = sensor.history.map(h => h.value);
+  const maxValue = Math.max(...values) * 1.1;
+  const minValue = Math.min(...values) * 0.9;
+
+  return (
+    <div className="modal-backdrop">
+      <div className="modal-chart">
+        <div className="modal-header">
+          <h2>История данных: {sensor.name}</h2>
+          <button className="close-btn" onClick={onClose}>×</button>
+        </div>
+
+        <div className="sensor-info">
+          <div className="info-grid">
+            <div className="info-item">
+              <span className="info-label">Текущее значение:</span>
+              <span className="info-value current-value">
+                {formatValue(sensor.currentValue)}
+              </span>
+            </div>
+            <div className="info-item">
+              <span className="info-label">Статус:</span>
+              <span 
+                className="info-value status-badge"
+                style={{ backgroundColor: getStatusColor(sensor.status) + '20', color: getStatusColor(sensor.status) }}
+              >
+                {getStatusText(sensor.status)}
+              </span>
+            </div>
+            <div className="info-item">
+              <span className="info-label">Последнее обновление:</span>
+              <span className="info-value">{sensor.lastUpdate}</span>
+            </div>
+            <div className="info-item">
+              <span className="info-label">Тип датчика:</span>
+              <span className="info-value">{sensor.type}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="chart-controls">
+          <div className="time-range-selector">
+            <button 
+              className={`time-range-btn ${timeRange === "1h" ? "active" : ""}`}
+              onClick={() => setTimeRange("1h")}
+            >
+              1 час
+            </button>
+            <button 
+              className={`time-range-btn ${timeRange === "6h" ? "active" : ""}`}
+              onClick={() => setTimeRange("6h")}
+            >
+              6 часов
+            </button>
+            <button 
+              className={`time-range-btn ${timeRange === "24h" ? "active" : ""}`}
+              onClick={() => setTimeRange("24h")}
+            >
+              24 часа
+            </button>
+            <button 
+              className={`time-range-btn ${timeRange === "7d" ? "active" : ""}`}
+              onClick={() => setTimeRange("7d")}
+            >
+              7 дней
+            </button>
+          </div>
+        </div>
+
+        <div className="chart-container">
+          <div className="chart-y-axis">
+            <div className="y-max">{formatValue(maxValue.toFixed(1))}</div>
+            <div className="y-min">{formatValue(minValue.toFixed(1))}</div>
+          </div>
+          
+          <div className="chart-content">
+            <div className="chart-grid">
+              {/* Горизонтальные линии сетки */}
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="grid-line horizontal" style={{ top: `${i * 25}%` }} />
+              ))}
+              
+              {/* Вертикальные линии сетки */}
+              {[...Array(7)].map((_, i) => (
+                <div key={i} className="grid-line vertical" style={{ left: `${i * (100/6)}%` }} />
+              ))}
+              
+              {/* График */}
+              <svg className="chart-line" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <polyline
+                  points={sensor.history.map((point, index) => 
+                    `${(index / (sensor.history.length - 1)) * 100},${100 - ((point.value - minValue) / (maxValue - minValue)) * 100}`
+                  ).join(' ')}
+                  fill="none"
+                  stroke="#3b82f6"
+                  strokeWidth="2"
+                />
+              </svg>
+              
+              {/* Точки на графике */}
+              {sensor.history.filter((_, i) => i % 3 === 0).map((point, index) => (
+                <div
+                  key={index}
+                  className="data-point"
+                  style={{
+                    left: `${(index * 3 / (sensor.history.length - 1)) * 100}%`,
+                    top: `${100 - ((point.value - minValue) / (maxValue - minValue)) * 100}%`
+                  }}
+                >
+                  <div className="point-tooltip">
+                    {new Date(point.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                    <br />
+                    {formatValue(point.value)}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Ось X */}
+            <div className="chart-x-axis">
+              {sensor.history.filter((_, i) => i % 6 === 0).map((point, index) => (
+                <div key={index} className="x-tick">
+                  {new Date(point.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="chart-stats">
+          <div className="stat-item">
+            <span className="stat-label">Среднее:</span>
+            <span className="stat-value">
+              {formatValue((values.reduce((a, b) => a + b, 0) / values.length).toFixed(2))}
+            </span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-label">Максимум:</span>
+            <span className="stat-value">{formatValue(Math.max(...values).toFixed(2))}</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-label">Минимум:</span>
+            <span className="stat-value">{formatValue(Math.min(...values).toFixed(2))}</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-label">Изменение (24ч):</span>
+            <span className={`stat-value ${values[values.length-1] > values[0] ? "positive" : "negative"}`}>
+              {values[values.length-1] > values[0] ? "+" : ""}
+              {(values[values.length-1] - values[0]).toFixed(2)} {sensor.unit}
+            </span>
+          </div>
+        </div>
+
+        <div className="modal-footer">
+          <button className="secondary-btn" onClick={onClose}>
+            Закрыть
+          </button>
+          <button className="primary-btn">
+            Экспортировать данные
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* Основной компонент страницы маппинга */
 export default function MappingTablePage() {
   const [mappingRows, setMappingRows] = useState([]);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [parameterModalOpen, setParameterModalOpen] = useState(false);
+  const [chartModalOpen, setChartModalOpen] = useState(false);
+  const [selectedSensor, setSelectedSensor] = useState(null);
 
   const addParameter = (parameter) => {
     const newRow = {
@@ -226,7 +514,6 @@ export default function MappingTablePage() {
   };
 
   const getFilteredSensors = (paramType) => {
-    // Определяем тип датчика по названию параметра
     const paramName = mappingRows.find(r => r.id === paramType)?.parameterName || "";
     if (paramName.toLowerCase().includes("температур")) return SENSORS.filter(s => s.type === "temperature");
     if (paramName.toLowerCase().includes("давлен")) return SENSORS.filter(s => s.type === "pressure");
@@ -234,6 +521,18 @@ export default function MappingTablePage() {
     if (paramName.toLowerCase().includes("уровень")) return SENSORS.filter(s => s.type === "level");
     if (paramName.toLowerCase().includes("качеств")) return SENSORS.filter(s => s.type === "quality");
     return SENSORS;
+  };
+
+  const getSensorById = (sensorId) => {
+    return SENSORS.find(s => s.id === sensorId);
+  };
+
+  const openChartModal = (sensorId) => {
+    const sensor = getSensorById(sensorId);
+    if (sensor) {
+      setSelectedSensor(sensor);
+      setChartModalOpen(true);
+    }
   };
 
   const saveMapping = () => {
@@ -254,7 +553,7 @@ export default function MappingTablePage() {
         <h1>Маппинг параметров и датчиков</h1>
         <button
           className="primary-btn"
-          onClick={() => setModalOpen(true)}
+          onClick={() => setParameterModalOpen(true)}
         >
           + Добавить параметр
         </button>
@@ -282,6 +581,7 @@ export default function MappingTablePage() {
             <tbody>
               {mappingRows.map(row => {
                 const sensors = getFilteredSensors(row.id);
+                const selectedSensor = getSensorById(row.sensorId);
                 
                 return (
                   <tr key={row.id}>
@@ -309,18 +609,43 @@ export default function MappingTablePage() {
 
                     <td>
                       {row.group && (
-                        <select
-                          value={row.sensorId}
-                          onChange={e => updateRow(row.id, "sensorId", e.target.value)}
-                          className="sensor-select"
-                        >
-                          <option value="">— выбрать датчик —</option>
-                          {sensors.map(sensor => (
-                            <option key={sensor.id} value={sensor.id}>
-                              {sensor.name}
-                            </option>
-                          ))}
-                        </select>
+                        <div className="sensor-selection">
+                          <select
+                            value={row.sensorId}
+                            onChange={e => updateRow(row.id, "sensorId", e.target.value)}
+                            className="sensor-select"
+                          >
+                            <option value="">— выбрать датчик —</option>
+                            {sensors.map(sensor => (
+                              <option key={sensor.id} value={sensor.id}>
+                                {sensor.name}
+                              </option>
+                            ))}
+                          </select>
+                          
+                          {selectedSensor && (
+                            <div className="sensor-info-row">
+                              <div className="current-value-display">
+                                <span className="value-label">Текущее значение:</span>
+                                <span className="value-number">
+                                  {selectedSensor.currentValue} {selectedSensor.unit}
+                                </span>
+                                <span className={`status-indicator ${selectedSensor.status}`} 
+                                      title={selectedSensor.status === "normal" ? "Норма" : 
+                                             selectedSensor.status === "warning" ? "Предупреждение" : "Авария"}>
+                                  ●
+                                </span>
+                              </div>
+                              <button 
+                                className="chart-btn"
+                                onClick={() => openChartModal(row.sensorId)}
+                                title="Показать график"
+                              >
+                                📈
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       )}
                       {!row.group && (
                         <span className="no-group">Сначала выберите группу</span>
@@ -364,9 +689,16 @@ export default function MappingTablePage() {
 
       {/* Модальное окно выбора параметра */}
       <ParameterModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        isOpen={parameterModalOpen}
+        onClose={() => setParameterModalOpen(false)}
         onSelectParameter={addParameter}
+      />
+
+      {/* Модальное окно с графиком датчика */}
+      <SensorChartModal
+        isOpen={chartModalOpen}
+        onClose={() => setChartModalOpen(false)}
+        sensor={selectedSensor}
       />
     </div>
   );
