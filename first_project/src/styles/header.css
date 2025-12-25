@@ -1,0 +1,68 @@
+.app-header {
+  height: 56px;
+  background: #ffffff;
+  border-bottom: 1px solid #dcdfe5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.app-title {
+  font-weight: 600;
+  font-size: 15px;
+  color: #1f2937;
+}
+
+.header-nav {
+  display: flex;
+  gap: 16px;
+}
+
+.nav-item {
+  font-size: 13px;
+  color: #555;
+  cursor: pointer;
+  padding-bottom: 2px;
+  text-decoration: none;
+}
+
+.nav-item.active {
+  color: #2b6cb0;
+  border-bottom: 2px solid #2b6cb0;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.model-indicator {
+  background: #f3f6fb;
+  border: 1px solid #d6deea;
+  border-radius: 4px;
+  padding: 6px 10px;
+  text-align: right;
+}
+
+.model-indicator.empty {
+  color: #888;
+  font-size: 12px;
+}
+
+.model-id {
+  font-size: 12px;
+  font-weight: 600;
+  color: #2b6cb0;
+}
+
+.model-object {
+  font-size: 11px;
+  color: #444;
+}

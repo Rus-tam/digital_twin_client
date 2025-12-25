@@ -1,0 +1,49 @@
+.mapping-page {
+  padding: 24px;
+  background: #f4f6f9;
+}
+
+.mapping-page h1 {
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+
+.mapping-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid #dcdfe5;
+}
+
+.mapping-table th,
+.mapping-table td {
+  border-bottom: 1px solid #e4e7ec;
+  padding: 10px;
+  font-size: 13px;
+}
+
+.mapping-table th {
+  background: #f1f4f8;
+  text-align: left;
+}
+
+.mapping-table select {
+  width: 100%;
+  padding: 6px;
+  font-size: 13px;
+}
+
+.actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.primary-btn {
+  background: #2b6cb0;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
