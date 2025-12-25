@@ -1,0 +1,286 @@
+:root {
+  /* Цветовая схема - светлая */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F8F9FA;
+  --bg-tertiary: #E9ECEF;
+  --bg-panel: #FFFFFF;
+  
+  /* Текст */
+  --text-primary: #212529;
+  --text-secondary: #495057;
+  --text-tertiary: #6C757D;
+  --text-disabled: #ADB5BD;
+  
+  /* Акцентные цвета - функциональные */
+  --accent-blue: #0066CC;
+  --accent-green: #28A745;
+  --accent-red: #DC3545;
+  --accent-orange: #FD7E14;
+  --accent-yellow: #FFC107;
+  
+  /* Цвета статусов по диапазонам */
+  --status-1: #28A745;      /* зелёный - норма */
+  --status-2: #FFC107;      /* жёлтый - внимание */
+  --status-3: #FD7E14;      /* оранжевый - предупреждение */
+  --status-4: #DC3545;      /* красный - авария */
+  --status-inactive: #6C757D;
+  
+  /* Границы */
+  --border-color: #DEE2E6;
+  --border-light: #CED4DA;
+  --border-accent: #0066CC;
+  
+  /* Размеры */
+  --border-radius: 2px;
+  --border-radius-lg: 4px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Roboto', 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Типографика - строгая */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+  letter-spacing: -0.01em;
+}
+
+h1 {
+  font-size: 18px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: var(--spacing-sm);
+}
+
+h2 {
+  font-size: 16px;
+}
+
+h3 {
+  font-size: 14px;
+}
+
+p {
+  margin-bottom: var(--spacing-md);
+  color: var(--text-secondary);
+}
+
+/* Кнопки - компактные */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-radius: var(--border-radius);
+  white-space: nowrap;
+  gap: 4px;
+  height: 28px;
+}
+
+.btn:hover {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-light);
+}
+
+.btn:active {
+  background-color: #E2E6EA;
+  transform: translateY(0);
+}
+
+.btn:disabled {
+  background-color: var(--bg-secondary);
+  color: var(--text-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-primary {
+  background-color: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0056B3;
+  border-color: #0056B3;
+}
+
+.btn-success {
+  background-color: var(--status-1);
+  border-color: var(--status-1);
+  color: white;
+}
+
+.btn-danger {
+  background-color: var(--status-4);
+  border-color: var(--status-4);
+  color: white;
+}
+
+.btn-warning {
+  background-color: var(--status-3);
+  border-color: var(--status-3);
+  color: white;
+}
+
+/* Формы */
+input, select, textarea {
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--text-primary);
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 6px 8px;
+  transition: border-color 0.15s;
+  height: 28px;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%236C757D' d='M5 7L2 4h6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 24px;
+}
+
+/* Статусные индикаторы */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 2px;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border: 1px solid transparent;
+}
+
+.status-normal {
+  background-color: rgba(40, 167, 69, 0.1);
+  color: var(--status-1);
+  border-color: rgba(40, 167, 69, 0.3);
+}
+
+.status-warning {
+  background-color: rgba(253, 126, 20, 0.1);
+  color: var(--status-3);
+  border-color: rgba(253, 126, 20, 0.3);
+}
+
+.status-critical {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: var(--status-4);
+  border-color: rgba(220, 53, 69, 0.3);
+}
+
+.status-inactive {
+  background-color: rgba(108, 117, 125, 0.1);
+  color: var(--status-inactive);
+  border-color: rgba(108, 117, 125, 0.3);
+}
+
+/* Карточки - белые с тонкими рамками */
+.card {
+  background-color: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.panel {
+  background-color: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Сетка значений для индикации */
+.value-indicator {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'Consolas', 'Roboto Mono', monospace;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 2px;
+  border: 1px solid transparent;
+}
+
+.value-normal {
+  color: var(--status-1);
+  background-color: rgba(40, 167, 69, 0.05);
+  border-color: rgba(40, 167, 69, 0.2);
+}
+
+.value-warning {
+  color: var(--status-3);
+  background-color: rgba(253, 126, 20, 0.05);
+  border-color: rgba(253, 126, 20, 0.2);
+}
+
+.value-critical {
+  color: var(--status-4);
+  background-color: rgba(220, 53, 69, 0.05);
+  border-color: rgba(220, 53, 69, 0.2);
+}
+
+/* Прокрутка */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: var(--border-radius);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-light);
+}

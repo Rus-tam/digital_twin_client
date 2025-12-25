@@ -172,7 +172,6 @@ function generateMockHistory(min, max, points) {
     const timestamp = new Date();
     timestamp.setHours(timestamp.getHours() - (points - i - 1));
     
-    // Генерация значения с небольшим случайным отклонением
     const base = min + (max - min) * (i / points);
     const randomDeviation = (Math.random() - 0.5) * (max - min) * 0.1;
     const value = Math.max(min, Math.min(max, base + randomDeviation));
@@ -315,7 +314,6 @@ function SensorChartModal({ isOpen, onClose, sensor }) {
     }
   };
 
-  // Определяем min/max для графика
   const values = sensor.history.map(h => h.value);
   const maxValue = Math.max(...values) * 1.1;
   const minValue = Math.min(...values) * 0.9;
@@ -393,17 +391,14 @@ function SensorChartModal({ isOpen, onClose, sensor }) {
           
           <div className="chart-content">
             <div className="chart-grid">
-              {/* Горизонтальные линии сетки */}
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="grid-line horizontal" style={{ top: `${i * 25}%` }} />
               ))}
               
-              {/* Вертикальные линии сетки */}
               {[...Array(7)].map((_, i) => (
                 <div key={i} className="grid-line vertical" style={{ left: `${i * (100/6)}%` }} />
               ))}
               
-              {/* График */}
               <svg className="chart-line" viewBox="0 0 100 100" preserveAspectRatio="none">
                 <polyline
                   points={sensor.history.map((point, index) => 
@@ -415,7 +410,6 @@ function SensorChartModal({ isOpen, onClose, sensor }) {
                 />
               </svg>
               
-              {/* Точки на графике */}
               {sensor.history.filter((_, i) => i % 3 === 0).map((point, index) => (
                 <div
                   key={index}
@@ -434,7 +428,6 @@ function SensorChartModal({ isOpen, onClose, sensor }) {
               ))}
             </div>
             
-            {/* Ось X */}
             <div className="chart-x-axis">
               {sensor.history.filter((_, i) => i % 6 === 0).map((point, index) => (
                 <div key={index} className="x-tick">
@@ -483,11 +476,13 @@ function SensorChartModal({ isOpen, onClose, sensor }) {
 }
 
 /* Основной компонент страницы маппинга */
-export default function MappingTablePage() {
-  const [mappingRows, setMappingRows] = useState([]);
+export default function MappingTablePage({ mappingData = [], onMappingDataChange }) {
   const [parameterModalOpen, setParameterModalOpen] = useState(false);
   const [chartModalOpen, setChartModalOpen] = useState(false);
   const [selectedSensor, setSelectedSensor] = useState(null);
+
+  // Используем данные из пропсов
+  const mappingRows = mappingData;
 
   const addParameter = (parameter) => {
     const newRow = {
@@ -498,11 +493,11 @@ export default function MappingTablePage() {
       group: "",
       sensorId: "",
     };
-    setMappingRows([...mappingRows, newRow]);
+    onMappingDataChange([...mappingRows, newRow]);
   };
 
   const updateRow = (rowId, field, value) => {
-    setMappingRows(rows =>
+    onMappingDataChange(rows =>
       rows.map(row =>
         row.id === rowId ? { ...row, [field]: value } : row
       )
@@ -510,7 +505,7 @@ export default function MappingTablePage() {
   };
 
   const removeRow = (rowId) => {
-    setMappingRows(rows => rows.filter(row => row.id !== rowId));
+    onMappingDataChange(rows => rows.filter(row => row.id !== rowId));
   };
 
   const getFilteredSensors = (paramType) => {
@@ -545,18 +540,40 @@ export default function MappingTablePage() {
 
     console.log("Сохранение маппинга в БД:", payload);
     alert(`Маппинг сохранён! Количество записей: ${mappingRows.length}`);
+    
+    // Также можно сохранить в localStorage для надежности
+    localStorage.setItem('mappingData', JSON.stringify(mappingRows));
   };
+
+  // Загружаем данные из localStorage при монтировании
+  useEffect(() => {
+    const savedData = localStorage.getItem('mappingData');
+    if (savedData && mappingRows.length === 0) {
+      onMappingDataChange(JSON.parse(savedData));
+    }
+  }, []);
 
   return (
     <div className="mapping-page">
       <div className="page-header">
         <h1>Маппинг параметров и датчиков</h1>
-        <button
-          className="primary-btn"
-          onClick={() => setParameterModalOpen(true)}
-        >
-          + Добавить параметр
-        </button>
+        <div className="header-actions">
+          <button
+            className="secondary-btn"
+            onClick={() => {
+              localStorage.setItem('mappingData', JSON.stringify(mappingRows));
+              alert('Данные сохранены в localStorage');
+            }}
+          >
+            💾 Сохранить локально
+          </button>
+          <button
+            className="primary-btn"
+            onClick={() => setParameterModalOpen(true)}
+          >
+            + Добавить параметр
+          </button>
+        </div>
       </div>
 
       {mappingRows.length === 0 ? (
@@ -602,8 +619,8 @@ export default function MappingTablePage() {
                         <option value="">— выбрать группу —</option>
                         <option value="input">Входные данные</option>
                         <option value="verification">Верификация и контроль</option>
-                        <option value="output">Выходные параметры</option>
-                        <option value="control">Управляющие параметры</option>
+                        {/* <option value="output">Выходные параметры</option>
+                        <option value="control">Управляющие параметры</option> */}
                       </select>
                     </td>
 
@@ -672,17 +689,28 @@ export default function MappingTablePage() {
               Всего параметров: <strong>{mappingRows.length}</strong> | 
               Связано с датчиками: <strong>{mappingRows.filter(r => r.sensorId).length}</strong>
             </div>
+            <div className="data-status">
+              {localStorage.getItem('mappingData') ? '✅ Данные сохранены' : '⚠️ Данные не сохранены'}
+            </div>
           </div>
         </>
       )}
 
       {mappingRows.length > 0 && (
         <div className="actions">
-          <button className="secondary-btn" onClick={() => setMappingRows([])}>
+          <button 
+            className="secondary-btn" 
+            onClick={() => {
+              if (window.confirm('Вы уверены, что хотите очистить всю таблицу?')) {
+                onMappingDataChange([]);
+                localStorage.removeItem('mappingData');
+              }
+            }}
+          >
             Очистить таблицу
           </button>
           <button className="primary-btn" onClick={saveMapping}>
-            Сохранить маппинг
+            Сохранить маппинг в БД
           </button>
         </div>
       )}

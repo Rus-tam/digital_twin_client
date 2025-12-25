@@ -1,105 +1,152 @@
-body {
-  margin: 0;
-  font-family: Inter, Arial, sans-serif;
-  background: #f4f6f9;
-}
-
 .page {
-  padding: 24px;
+  padding: var(--spacing-lg);
+  min-height: calc(100vh - 48px);
+  background-color: var(--bg-secondary);
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+
+.page-header h1 {
+  margin: 0;
+  border: none;
+  padding: 0;
+  font-size: 16px;
 }
 
 .selected-info {
-  margin: 12px 0;
-  font-size: 14px;
-  color: #444;
+  margin: var(--spacing-md) 0;
+  padding: var(--spacing-md);
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.selected-info strong {
+  color: var(--accent-blue);
+  font-family: 'Consolas', monospace;
 }
 
 .model-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--spacing-sm);
 }
 
 .model-card {
-  background: #fff;
-  border: 1px solid #dcdfe5;
-  border-radius: 6px;
-  padding: 16px;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: all 0.15s;
+}
+
+.model-card:hover {
+  border-color: var(--border-light);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .model-card.active {
-  border-color: #2b6cb0;
-  background: #eef4ff;
+  border-color: var(--accent-blue);
+  background: white;
+  box-shadow: 0 0 0 1px var(--accent-blue);
 }
 
 .model-data {
-  font-size: 13px;
-  line-height: 1.4;
+  font-size: 12px;
+  line-height: 1.5;
+  font-family: 'Roboto', sans-serif;
+}
+
+.model-data div {
+  margin-bottom: var(--spacing-xs);
+}
+
+.model-data div:last-child {
+  margin-bottom: 0;
+}
+
+.model-data b {
+  color: var(--text-secondary);
+  font-weight: 500;
+  min-width: 120px;
+  display: inline-block;
 }
 
 .description {
-  color: #666;
+  color: var(--text-tertiary);
+  margin-top: var(--spacing-xs);
+  font-size: 11px;
+  line-height: 1.4;
 }
 
-.primary-btn {
-  background: #2b6cb0;
-  color: #fff;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.secondary-btn {
-  background: #fff;
-  border: 1px solid #2b6cb0;
-  color: #2b6cb0;
-  padding: 8px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
+/* Модальное окно */
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.35);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
 
 .modal {
-  background: #fff;
-  padding: 20px;
-  width: 420px;
-  border-radius: 6px;
+  background: white;
+  padding: var(--spacing-lg);
+  width: 400px;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modal h2 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: var(--spacing-sm);
+  font-size: 16px;
 }
 
 .modal input,
 .modal select,
 .modal textarea {
   width: 100%;
-  margin-top: 10px;
-  padding: 8px;
+  margin-top: var(--spacing-sm);
+  background-color: white;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.modal select {
+  height: 32px;
 }
 
 .modal textarea {
   resize: vertical;
   min-height: 60px;
+  font-family: inherit;
+  padding: 6px 8px;
 }
 
 .modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 16px;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
 }

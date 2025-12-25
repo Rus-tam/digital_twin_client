@@ -1,68 +1,168 @@
 .app-header {
-  height: 56px;
-  background: #ffffff;
-  border-bottom: 1px solid #dcdfe5;
+  height: 48px;
+  background-color: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 20px;
+  padding: 0 var(--spacing-md);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .header-left {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: var(--spacing-lg);
 }
 
 .app-title {
   font-weight: 600;
-  font-size: 15px;
-  color: #1f2937;
+  font-size: 14px;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: 'Consolas', monospace;
 }
 
 .header-nav {
   display: flex;
-  gap: 16px;
+  gap: var(--spacing-sm);
 }
 
 .nav-item {
-  font-size: 13px;
-  color: #555;
+  font-size: 12px;
+  color: var(--text-secondary);
   cursor: pointer;
-  padding-bottom: 2px;
+  padding: var(--spacing-sm) var(--spacing-md);
   text-decoration: none;
+  position: relative;
+  transition: color 0.15s;
+  border-radius: var(--border-radius);
+}
+
+.nav-item:hover {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .nav-item.active {
-  color: #2b6cb0;
-  border-bottom: 2px solid #2b6cb0;
+  color: var(--accent-blue);
+  font-weight: 500;
+  background-color: rgba(0, 102, 204, 0.05);
+}
+
+.nav-item.active::after {
+  display: none;
 }
 
 .header-right {
   display: flex;
   align-items: center;
+  margin-left: auto; /* Добавим отступ слева */
+  padding-left: var(--spacing-md);
 }
 
+/* Обновленный model-indicator - теперь ширина подгоняется под текст */
 .model-indicator {
-  background: #f3f6fb;
-  border: 1px solid #d6deea;
-  border-radius: 4px;
-  padding: 6px 10px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 4px 8px;
   text-align: right;
+  min-width: fit-content; /* Ширина по содержимому */
+  max-width: 300px; /* Максимальная ширина на случай очень длинного текста */
+  font-size: 11px;
+  white-space: nowrap; /* Не переносить текст */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Многоточие если текст не помещается */
+  transition: all 0.2s ease;
+}
+
+/* При наведении показываем полный текст */
+.model-indicator:hover {
+  max-width: 400px;
+  white-space: normal;
+  overflow: visible;
+  background-color: var(--bg-tertiary);
+  z-index: 10;
 }
 
 .model-indicator.empty {
-  color: #888;
-  font-size: 12px;
+  color: var(--text-tertiary);
+  font-size: 11px;
+  min-width: 140px; /* Фиксированная минимальная ширина для пустого состояния */
+  text-align: center;
+  white-space: nowrap;
 }
 
+/* Контейнер для текста */
 .model-id {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  color: #2b6cb0;
+  color: var(--accent-blue);
+  font-family: 'Consolas', monospace;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .model-object {
-  font-size: 11px;
-  color: #444;
+  font-size: 10px;
+  color: var(--text-secondary);
+  margin-top: 1px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+/* Для пустого индикатора - другие стили текста */
+.model-indicator.empty .model-id,
+.model-indicator.empty .model-object {
+  display: inline;
+  font-family: inherit;
+  color: var(--text-tertiary);
+  font-weight: normal;
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+  .header-nav {
+    display: none; /* Скрываем навигацию на маленьких экранах */
+  }
+  
+  .model-indicator {
+    max-width: 200px;
+  }
+  
+  .model-indicator:hover {
+    max-width: 250px;
+  }
+  
+  .model-indicator.empty {
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-title {
+    font-size: 12px;
+  }
+  
+  .model-indicator {
+    max-width: 150px;
+  }
+  
+  .model-indicator:hover {
+    max-width: 200px;
+  }
+  
+  .model-indicator.empty {
+    min-width: 100px;
+    font-size: 10px;
+  }
 }
