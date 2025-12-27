@@ -342,7 +342,7 @@ export default function ParameterModal({ isOpen, onClose, onSelectParameter }) {
                           color: "var(--text-tertiary)",
                           marginTop: "2px"
                         }}>
-                          {section.name} > {item.name}
+                          {section.name} &gt; {item.name}
                         </div>
                       </span>
                       <button 
