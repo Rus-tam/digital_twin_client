@@ -6,9 +6,54 @@ export default function ModelSelectionPage({ onModelSelect, selectedModel }) {
   const [models, setModels] = useState([]);
   const [selectedModelId, setSelectedModelId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [modelToDelete, setModelToDelete] = useState(null);
 
   const handleSaveModel = (model) => {
-    setModels((prev) => [...prev, model]);
+    const newModel = {
+      ...model,
+      id: Date.now().toString(),
+      engineLabel: model.engine === "stm" ? "СТМ" : "ЭРА:ИСКРА",
+      createdAt: new Date().toLocaleDateString('ru-RU'),
+      createdAtFull: new Date().toISOString()
+    };
+    setModels((prev) => [...prev, newModel]);
+  };
+
+  const handleDeleteModel = (modelId, event) => {
+    if (event) {
+      event.stopPropagation(); // Предотвращаем всплытие
+    }
+    
+    // Если модель выбрана, снимаем выбор
+    if (selectedModelId === modelId) {
+      setSelectedModelId(null);
+      onModelSelect(null);
+    }
+    
+    setModels(models.filter(model => model.id !== modelId));
+  };
+
+  const handleSelectModel = (model, event) => {
+    if (event) {
+      event.stopPropagation(); // Предотвращаем всплытие
+    }
+    
+    setSelectedModelId(model.id);
+    onModelSelect(model);
+  };
+
+  const confirmDeleteModel = (modelId, modelName, event) => {
+    if (event) {
+      event.stopPropagation();
+    }
+    
+    if (window.confirm(`Вы уверены, что хотите удалить модель "${modelName}"?`)) {
+      handleDeleteModel(modelId);
+    }
+  };
+
+  const getEngineBadgeClass = (engine) => {
+    return engine === "stm" ? "engine-badge stm" : "engine-badge era";
   };
 
   return (
@@ -29,43 +74,70 @@ export default function ModelSelectionPage({ onModelSelect, selectedModel }) {
         <div className="selected-info">
           Текущая модель:
           <strong> {selectedModel.modelId}</strong> —{" "}
-          {selectedModel.objectName}
+          {selectedModel.objectName} ({selectedModel.engineLabel})
         </div>
       )}
 
       {/* Список моделей */}
       <div className="model-list">
         {models.length === 0 && (
-          <div style={{ color: "#666", fontSize: 13 }}>
-            Модели не загружены
+          <div style={{ 
+            color: "#666", 
+            fontSize: 13, 
+            padding: "var(--spacing-lg)",
+            textAlign: "center",
+            backgroundColor: "white",
+            border: "1px dashed var(--border-color)",
+            borderRadius: "var(--border-radius)"
+          }}>
+            Загруженные модели отсутствуют. Нажмите "Загрузить модель" для добавления.
           </div>
         )}
 
         {models.map((model) => (
           <div
-            key={model.modelId}
+            key={model.id}
             className={`model-card ${
-              selectedModelId === model.modelId ? "active" : ""
+              selectedModelId === model.id ? "active" : ""
             }`}
+            onClick={() => handleSelectModel(model)}
+            style={{ cursor: "pointer" }}
           >
             <div className="model-data">
-              <div><b>ID модели:</b> {model.modelId}</div>
-              <div><b>ДО:</b> {model.org}</div>
-              <div><b>Объект подготовки:</b> {model.objectName}</div>
-              <div className="description">
-                {model.description || "—"}
+              <div>
+                <b>ID модели:</b> {model.modelId}
+                <span className={getEngineBadgeClass(model.engine)}>
+                  {model.engineLabel}
+                </span>
               </div>
+              <div><b>Объект подготовки:</b> {model.objectName}</div>
+              <div style={{ fontSize: "11px", color: "#6C757D" }}>
+                <b>Загружено:</b> {model.createdAt}
+              </div>
+              {model.description && (
+                <div className="description">
+                  {model.description}
+                </div>
+              )}
             </div>
 
-            <button
-              className="secondary-btn"
-              onClick={() => {
-                setSelectedModelId(model.modelId);
-                onModelSelect(model);
-              }}
-            >
-              Выбрать модель
-            </button>
+            <div className="model-actions">
+              <button
+                className={`select-model-btn ${selectedModelId === model.id ? "selected" : ""}`}
+                onClick={(e) => handleSelectModel(model, e)}
+                title={selectedModelId === model.id ? "Модель выбрана" : "Выбрать модель"}
+              >
+                {selectedModelId === model.id ? "✓ Выбрана" : "Выбрать"}
+              </button>
+              
+              <button
+                className="delete-model-btn"
+                onClick={(e) => confirmDeleteModel(model.id, model.modelId, e)}
+                title="Удалить модель"
+              >
+                Удалить
+              </button>
+            </div>
           </div>
         ))}
       </div>

@@ -50,8 +50,9 @@
   padding: var(--spacing-md);
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   transition: all 0.15s;
+  position: relative;
 }
 
 .model-card:hover {
@@ -60,19 +61,24 @@
 }
 
 .model-card.active {
-  border-color: var(--accent-blue);
-  background: white;
-  box-shadow: 0 0 0 1px var(--accent-blue);
+  background-color: #E3F2FD; /* Серо-голубой фон при активации */
+  border-color: #B3D9FF; /* Светло-голубая граница */
 }
 
 .model-data {
   font-size: 12px;
   line-height: 1.5;
   font-family: 'Roboto', sans-serif;
+  flex: 1;
+  min-width: 0; /* Для корректного обрезания текста */
 }
 
-.model-data div {
+.model-data > div {
   margin-bottom: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .model-data div:last-child {
@@ -86,11 +92,101 @@
   display: inline-block;
 }
 
+/* Бейдж для движка */
+.engine-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 500;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-left: var(--spacing-sm);
+  white-space: nowrap;
+}
+
+.engine-badge.stm {
+  background-color: #E8F5E9;
+  color: #2E7D32;
+  border: 1px solid #A5D6A7;
+}
+
+.engine-badge.era {
+  background-color: #E3F2FD;
+  color: #0066CC;
+  border: 1px solid #B3D9FF;
+}
+
 .description {
   color: var(--text-tertiary);
   margin-top: var(--spacing-xs);
   font-size: 11px;
   line-height: 1.4;
+  background-color: rgba(0, 0, 0, 0.02);
+  padding: var(--spacing-xs);
+  border-radius: 2px;
+  border-left: 2px solid var(--border-color);
+}
+
+/* Контейнер для кнопок */
+.model-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-left: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+/* Кнопки управления моделью */
+.select-model-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--border-color);
+  background-color: white;
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+}
+
+.select-model-btn:hover {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-light);
+}
+
+.select-model-btn.selected {
+  background-color: var(--accent-blue);
+  color: white;
+  border-color: var(--accent-blue);
+}
+
+.delete-model-btn {
+  padding: 6px 12px;
+  border: 1px solid #DC3545;
+  background-color: white;
+  color: #DC3545;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+}
+
+.delete-model-btn:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+  border-color: #C82333;
 }
 
 /* Модальное окно */
