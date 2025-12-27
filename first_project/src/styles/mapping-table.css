@@ -1,3 +1,4 @@
+/* [file name]: mapping-table.css - ПОЛНОСТЬЮ ОБНОВЛЕННЫЙ */
 .mapping-page {
   padding: var(--spacing-lg);
   min-height: calc(100vh - 48px);
@@ -71,7 +72,7 @@
 .mapping-table th {
   background-color: var(--bg-secondary);
   text-align: left;
-  padding: 8px 12px;
+  padding: 10px 12px;
   font-weight: 600;
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-color);
@@ -83,11 +84,11 @@
 }
 
 .mapping-table td {
-  padding: 8px 12px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-primary);
   vertical-align: middle;
-  height: 40px;
+  height: 52px; /* Увеличили высоту для кнопок */
 }
 
 .mapping-table tr:last-child td {
@@ -102,7 +103,7 @@
   background-color: var(--bg-tertiary);
 }
 
-/* Увеличиваем ширину колонок для лучшего отображения выпадающих меню */
+/* Увеличиваем ширину колонок */
 .mapping-table th:first-child {
   width: 35%; /* Параметр расчетной схемы */
 }
@@ -112,13 +113,13 @@
 }
 
 .mapping-table th:nth-child(3) {
-  width: 18%; /* Группа - увеличена */
-  min-width: 150px;
+  width: 18%; /* Группа */
+  min-width: 160px;
 }
 
 .mapping-table th:nth-child(4) {
-  width: 30%; /* Датчик объекта подготовки - увеличена */
-  min-width: 200px;
+  width: 30%; /* Датчик объекта подготовки */
+  min-width: 220px;
 }
 
 .mapping-table th:last-child {
@@ -143,43 +144,39 @@
 .group-select,
 .sensor-select {
   width: 100%;
-  padding: 4px 6px;
+  padding: 6px 8px;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   background-color: white;
   color: var(--text-primary);
   font-family: inherit;
-  font-size: 12px;
-  height: 28px;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Увеличиваем размер шрифта в опциях выпадающего списка */
-.group-select option,
-.sensor-select option {
-  font-size: 12px;
-  padding: 6px 8px;
-  white-space: normal;
-  word-wrap: break-word;
+  font-size: 11px;
+  height: 30px;
   max-width: 100%;
 }
 
-/* Стили для самого выпадающего списка */
-.group-select,
-.sensor-select {
-  font-size: 11px; /* Немного уменьшаем шрифт в поле */
-}
-
-/* При фокусе показываем полный текст */
 .group-select:focus,
 .sensor-select:focus {
   outline: none;
   border-color: var(--accent-blue);
   box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
-  overflow: visible;
+}
+
+/* Увеличиваем размер шрифта в опциях */
+.group-select option,
+.sensor-select option {
+  font-size: 12px;
+  padding: 8px;
   white-space: normal;
+  word-wrap: break-word;
+  max-width: 100%;
+}
+
+.manual-input-indicator {
+  font-size: 10px;
+  color: var(--accent-green);
+  font-weight: 600;
+  margin-left: 4px;
 }
 
 .no-group {
@@ -201,7 +198,7 @@
   align-items: center;
   justify-content: space-between;
   background-color: white;
-  padding: 4px 6px;
+  padding: 6px 8px;
   border-radius: var(--border-radius);
   border: 1px solid var(--border-color);
   font-size: 11px;
@@ -228,6 +225,12 @@
   white-space: nowrap;
 }
 
+.no-data {
+  color: var(--accent-red);
+  font-weight: 500;
+  font-size: 11px;
+}
+
 .status-indicator {
   font-size: 10px;
   line-height: 1;
@@ -246,17 +249,46 @@
   color: var(--status-4);
 }
 
-.chart-btn {
-  background-color: white;
-  border: 1px solid var(--border-color);
+/* Кнопки действий */
+.action-buttons {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.manual-input-btn {
+  background-color: var(--accent-green);
+  color: white;
+  border: 1px solid var(--accent-green);
   border-radius: var(--border-radius);
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 14px;
+  transition: all 0.15s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.manual-input-btn:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+.chart-btn {
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
   transition: all 0.15s;
   color: var(--text-primary);
   padding: 0;
@@ -272,14 +304,14 @@
   background-color: white;
   color: var(--accent-red);
   border: 1px solid var(--border-color);
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: var(--border-radius);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 14px;
   transition: all 0.15s;
   padding: 0;
   flex-shrink: 0;
@@ -330,12 +362,12 @@
   border-top: 1px solid var(--border-color);
 }
 
-/* Адаптивность для маленьких экранов */
+/* Адаптивность */
 @media (max-width: 1024px) {
   .mapping-table {
     display: block;
     overflow-x: auto;
-    min-width: 800px; /* Минимальная ширина для скролла */
+    min-width: 900px;
   }
   
   .page-header {
