@@ -1,0 +1,220 @@
+/* [file name]: calendar.css - НОВЫЙ ФАЙЛ */
+/* Стили для календаря */
+
+.calendar-container {
+  position: relative;
+  display: inline-block;
+}
+
+.calendar-btn {
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid #B0B0B0;
+  background-color: white;
+  color: var(--text-primary);
+  font-size: 11px;
+  font-family: inherit;
+  border-radius: 2px;
+  cursor: pointer;
+  min-width: 150px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.15s;
+}
+
+.calendar-btn:hover {
+  border-color: #909090;
+  background-color: #F8F9FA;
+}
+
+.calendar-btn:focus {
+  outline: none;
+  border-color: #0066CC;
+  box-shadow: 0 0 0 1px rgba(0, 102, 204, 0.2);
+}
+
+.calendar-btn .icon {
+  font-size: 12px;
+  color: #666;
+}
+
+.calendar-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  width: 280px;
+  padding: var(--spacing-md);
+  font-size: 12px;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.calendar-month {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 13px;
+  text-transform: capitalize;
+}
+
+.calendar-nav-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-color);
+  background: white;
+  border-radius: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+}
+
+.calendar-nav-btn:hover {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-light);
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: var(--spacing-sm);
+  text-align: center;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.calendar-day {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-primary);
+  background: white;
+  transition: all 0.15s;
+}
+
+.calendar-day:hover {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+.calendar-day.today {
+  background-color: #E3F2FD;
+  color: #0066CC;
+  border-color: #0066CC;
+  font-weight: 600;
+}
+
+.calendar-day.selected {
+  background-color: #0066CC;
+  color: white;
+  border-color: #0066CC;
+  font-weight: 600;
+}
+
+.calendar-day.other-month {
+  color: var(--text-tertiary);
+  opacity: 0.5;
+}
+
+.calendar-day.disabled {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+  background-color: var(--bg-secondary);
+}
+
+.calendar-day.disabled:hover {
+  background-color: var(--bg-secondary);
+  border-color: transparent;
+}
+
+.calendar-footer {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.selected-date-display {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.selected-date-value {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-left: 4px;
+}
+
+.calendar-actions {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.calendar-actions .btn {
+  font-size: 11px;
+  padding: 4px 8px;
+  height: 24px;
+}
+
+/* Поле быстрого ввода даты */
+.date-quick-select {
+  display: flex;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+}
+
+.quick-date-btn {
+  flex: 1;
+  height: 24px;
+  border: 1px solid var(--border-color);
+  background: white;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 10px;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.quick-date-btn:hover {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-light);
+}
+
+.quick-date-btn.active {
+  background-color: var(--accent-blue);
+  color: white;
+  border-color: var(--accent-blue);
+  font-weight: 500;
+}
