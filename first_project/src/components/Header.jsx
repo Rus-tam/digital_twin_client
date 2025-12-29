@@ -77,6 +77,10 @@ export default function Header({ selectedModel }) {
             <NavLink to="/mapping" className="nav-item">
               Маппинг-таблица
             </NavLink>
+            <NavLink to="/lab-research" className="nav-item">
+              Лабораторные исследования
+            </NavLink>
+
             <NavLink to="/scheme" className="nav-item">
               Схема
             </NavLink>

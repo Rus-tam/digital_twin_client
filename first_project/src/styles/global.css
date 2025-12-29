@@ -54,6 +54,24 @@ body {
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  padding-bottom: 60px;
+}
+
+.danger-btn {
+  background-color: var(--accent-red);
+  border-color: var(--accent-red);
+  color: white;
+}
+
+.danger-btn:hover {
+  background-color: #C82333;
+  border-color: #BD2130;
+}
+
+.btn-sm {
+  padding: 4px 8px;
+  font-size: 11px;
+  height: 24px;
 }
 
 /* Типографика - строгая */

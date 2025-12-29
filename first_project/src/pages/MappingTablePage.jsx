@@ -6,7 +6,6 @@ import ManualDataModal from "../components/ManualDataModal";
 import ParameterModal from "../components/ParameterModal";
 import SensorChartModal from "../components/SensorChartModel";
 
-/* Моковые данные датчиков */
 const SENSORS = [
   { 
     id: "T-101", 
@@ -79,18 +78,17 @@ const SENSORS = [
   }
 ];
 
-/* Группы для выбора */
 const GROUP_OPTIONS = [
   { value: "", label: "— выбрать группу —" },
   { value: "input", label: "Входные данные" },
   { value: "input_manual", label: "Входные данные (ручной ввод)" },
   { value: "verification", label: "Верификация и контроль" },
   { value: "verification_manual", label: "Верификация и контроль (ручной ввод)" },
+  { value: "laboratory", label: "Лабораторные исследования" },
   { value: "output", label: "Выходные параметры" },
   { value: "control", label: "Управляющие параметры" }
 ];
 
-/* Функция генерации моковых исторических данных */
 function generateMockHistory(min, max, points) {
   return Array.from({ length: points }, (_, i) => {
     const timestamp = new Date();
@@ -107,23 +105,16 @@ function generateMockHistory(min, max, points) {
   });
 }
 
-/* Основной компонент страницы маппинга */
 export default function MappingTablePage({ mappingData = [], onMappingDataChange }) {
-  // Состояния для модальных окон
   const [parameterModalOpen, setParameterModalOpen] = useState(false);
   const [chartModalOpen, setChartModalOpen] = useState(false);
   const [manualDataModalOpen, setManualDataModalOpen] = useState(false);
   
-  // Состояния для выбранных элементов
   const [selectedSensor, setSelectedSensor] = useState(null);
   const [selectedRowForManual, setSelectedRowForManual] = useState(null);
   
-  // Используем данные из пропсов
   const mappingRows = mappingData;
 
-  /* === ФУНКЦИИ ДЛЯ РАБОТЫ С ДАННЫМИ === */
-
-  // Добавление нового параметра
   const addParameter = (parameter) => {
     const newRow = {
       id: Date.now().toString(),
@@ -132,27 +123,31 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
       unit: parameter.unit,
       group: "",
       sensorId: "",
-      manualData: []
+      manualData: [],
+      isLaboratory: false
     };
     onMappingDataChange([...mappingRows, newRow]);
   };
 
-  // Обновление строки
   const updateRow = (rowId, field, value) => {
     onMappingDataChange(rows =>
       rows.map(row => {
         if (row.id === rowId) {
           const updatedRow = { ...row, [field]: value };
           
-          // Если изменилась группа на не-ручной ввод, сбрасываем ручные данные
-          if (field === "group" && !isManualGroup(value)) {
+          updatedRow.isLaboratory = value === "laboratory";
+
+          if (field === "group" && !isManualGroup(value) && value !== "laboratory") {
             updatedRow.manualData = [];
             if (!getSensorById(updatedRow.sensorId)?.isManual) {
               updatedRow.sensorId = "";
             }
           }
+       
+          if (field === "group" && value === "laboratory") {
+            updatedRow.sensorId = "";
+          }
           
-          // Если изменился сенсор, обновляем данные
           if (field === "sensorId" && value) {
             const sensor = getSensorById(value);
             if (sensor?.isManual && sensor.manualData) {
@@ -167,32 +162,29 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
     );
   };
 
-  // Удаление строки
   const removeRow = (rowId) => {
     onMappingDataChange(rows => rows.filter(row => row.id !== rowId));
   };
 
-  /* === ФУНКЦИИ ДЛЯ РАБОТЫ С ДАТЧИКАМИ === */
-
-  // Получение всех датчиков
   const getAllSensors = () => {
     return SENSORS;
   };
 
-  // Получение датчика по ID
   const getSensorById = (sensorId) => {
     return getAllSensors().find(s => s.id === sensorId);
   };
 
-  // Фильтрация датчиков по типу и группе
   const getFilteredSensors = (rowId, groupType) => {
+    if (groupType === "laboratory") {
+      return [];
+    }
+    
     const row = mappingRows.find(r => r.id === rowId);
     if (!row) return getAllSensors();
     
     const paramName = row.parameterName || "";
     let filteredSensors = getAllSensors();
     
-    // Фильтрация по типу датчика
     if (paramName.toLowerCase().includes("температур")) {
       filteredSensors = filteredSensors.filter(s => s.type === "temperature");
     } else if (paramName.toLowerCase().includes("давлен")) {
@@ -205,40 +197,35 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
       filteredSensors = filteredSensors.filter(s => s.type === "quality");
     }
     
-    // Фильтрация по типу ввода для группы
     if (isManualGroup(groupType)) {
       filteredSensors = filteredSensors.filter(s => s.isManual);
-    } else if (groupType && !isManualGroup(groupType)) {
+    } else if (groupType && !isManualGroup(groupType) && groupType !== "laboratory") {
       filteredSensors = filteredSensors.filter(s => !s.isManual);
     }
     
     return filteredSensors;
   };
 
-  /* === ФУНКЦИИ ДЛЯ РАБОТЫ С РУЧНЫМ ВВОДОМ === */
-
-  // Проверка, является ли группа ручным вводом
   const isManualGroup = (group) => {
     return group && (group === "input_manual" || group === "verification_manual");
   };
 
-  // Открытие модального окна ручного ввода
+  const isLaboratoryGroup = (group) => {
+    return group === "laboratory";
+  };
+
   const openManualDataModal = (row) => {
     setSelectedRowForManual(row);
     setManualDataModalOpen(true);
   };
 
-  // Сохранение ручных данных
   const handleSaveManualData = (newManualData) => {
     if (!selectedRowForManual) return;
     
-    // Обновляем данные в строке
     updateRow(selectedRowForManual.id, "manualData", newManualData);
     
-    // Обновляем данные в сенсоре
     const sensor = getSensorById(selectedRowForManual.sensorId);
     if (sensor && sensor.isManual) {
-      // Обновляем глобальные данные датчика
       const sensorIndex = SENSORS.findIndex(s => s.id === sensor.id);
       if (sensorIndex !== -1) {
         SENSORS[sensorIndex] = {
@@ -254,9 +241,6 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
     setSelectedRowForManual(null);
   };
 
-  /* === ФУНКЦИИ ДЛЯ РАБОТЫ С ГРАФИКОМ === */
-
-  // Открытие модального окна графика
   const openChartModal = (sensorId) => {
     const sensor = getSensorById(sensorId);
     if (sensor) {
@@ -265,41 +249,41 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
     }
   };
 
-  /* === ФУНКЦИИ ДЛЯ СОХРАНЕНИЯ === */
-
-  // Сохранение маппинга
   const saveMapping = () => {
     const payload = mappingRows.map(row => ({
       parameterId: row.parameterId,
       parameterName: row.parameterName,
+      unit: row.unit,
       group: row.group,
+      isLaboratory: row.isLaboratory,
       sensorId: row.sensorId || null,
       manualData: row.manualData || []
     }));
 
     console.log("Сохранение маппинга в БД:", payload);
-    alert(`Маппинг сохранён! Количество записей: ${mappingRows.length}`);
+    alert(`Маппинг сохранён! Количество записей: ${mappingRows.length}\nЛабораторные исследования: ${mappingRows.filter(r => r.isLaboratory).length}`);
     
     localStorage.setItem('mappingData', JSON.stringify(mappingRows));
   };
 
-  // Загрузка данных из localStorage
   useEffect(() => {
     const savedData = localStorage.getItem('mappingData');
     if (savedData && mappingRows.length === 0) {
       try {
-        onMappingDataChange(JSON.parse(savedData));
+        const parsedData = JSON.parse(savedData);
+        const updatedData = parsedData.map(row => ({
+          ...row,
+          isLaboratory: row.group === "laboratory"
+        }));
+        onMappingDataChange(updatedData);
       } catch (error) {
         console.error("Ошибка загрузки данных из localStorage:", error);
       }
     }
   }, []);
 
-  /* === РЕНДЕРИНГ === */
-
   return (
     <div className="mapping-page">
-      {/* Заголовок страницы */}
       <div className="page-header">
         <h1>Маппинг параметров и датчиков</h1>
         <div className="header-actions">
@@ -321,7 +305,6 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
         </div>
       </div>
 
-      {/* Основная таблица */}
       {mappingRows.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">📊</div>
@@ -346,23 +329,21 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
                 const sensors = getFilteredSensors(row.id, row.group);
                 const selectedSensor = getSensorById(row.sensorId);
                 const isManualGroupSelected = isManualGroup(row.group);
+                const isLaboratoryGroupSelected = isLaboratoryGroup(row.group);
                 const lastManualValue = row.manualData?.length > 0 
                   ? row.manualData[row.manualData.length - 1] 
                   : null;
                 
                 return (
                   <tr key={row.id}>
-                    {/* Колонка 1: Параметр */}
                     <td>
                       <div className="parameter-name">{row.parameterName}</div>
                     </td>
                     
-                    {/* Колонка 2: Единица измерения */}
                     <td>
                       <div className="parameter-unit">{row.unit}</div>
                     </td>
 
-                    {/* Колонка 3: Группа */}
                     <td>
                       <select
                         value={row.group}
@@ -377,14 +358,26 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
                       </select>
                     </td>
 
-                    {/* Колонка 4: Датчик */}
                     <td>
-                      {row.group ? (
+                      {!row.group ? (
+                        <span className="no-group">Сначала выберите группу</span>
+                      ) : isLaboratoryGroupSelected ? (
+                        <div className="laboratory-info">
+                          <div className="laboratory-label">
+                            <span className="lab-icon">🧪</span>
+                            <span>Лабораторные исследования</span>
+                          </div>
+                          <div className="laboratory-hint">
+                            Значения будут вводиться на отдельной странице лабораторных данных
+                          </div>
+                        </div>
+                      ) : (
                         <div className="sensor-selection">
                           <select
                             value={row.sensorId}
                             onChange={e => updateRow(row.id, "sensorId", e.target.value)}
                             className="sensor-select"
+                            disabled={isLaboratoryGroupSelected}
                           >
                             <option value="">— выбрать датчик —</option>
                             {sensors.map(sensor => (
@@ -394,10 +387,9 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
                             ))}
                           </select>
                           
-                          {selectedSensor && (
+                          {selectedSensor && !isLaboratoryGroupSelected && (
                             <div className="sensor-info-row">
                               <div className="current-value-display">
-                                {/* Отображение значения в зависимости от типа */}
                                 {isManualGroupSelected ? (
                                   <>
                                     <span className="value-label">Последнее значение:</span>
@@ -429,7 +421,6 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
                                 )}
                               </div>
                               
-                              {/* Кнопки действий */}
                               <div className="action-buttons">
                                 {isManualGroupSelected && (
                                   <button 
@@ -452,12 +443,9 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
                             </div>
                           )}
                         </div>
-                      ) : (
-                        <span className="no-group">Сначала выберите группу</span>
                       )}
                     </td>
 
-                    {/* Колонка 5: Действия */}
                     <td>
                       <button
                         className="remove-btn"
@@ -473,12 +461,12 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
             </tbody>
           </table>
 
-          {/* Сводная информация */}
           <div className="summary-info">
             <div className="summary-text">
               Всего параметров: <strong>{mappingRows.length}</strong> | 
-              Связано с датчиками: <strong>{mappingRows.filter(r => r.sensorId).length}</strong> |
-              Ручной ввод: <strong>{mappingRows.filter(r => isManualGroup(r.group)).length}</strong>
+              Связано с датчиками: <strong>{mappingRows.filter(r => r.sensorId && !r.isLaboratory).length}</strong> |
+              Ручной ввод: <strong>{mappingRows.filter(r => isManualGroup(r.group)).length}</strong> |
+              Лабораторные исследования: <strong>{mappingRows.filter(r => r.isLaboratory).length}</strong>
             </div>
             <div className="data-status">
               {localStorage.getItem('mappingData') ? '✅ Данные сохранены' : '⚠️ Данные не сохранены'}
@@ -487,7 +475,6 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
         </>
       )}
 
-      {/* Кнопки действий внизу страницы */}
       {mappingRows.length > 0 && (
         <div className="actions">
           <button 
@@ -507,9 +494,6 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
         </div>
       )}
 
-      {/* Модальные окна */}
-      
-      {/* Окно выбора параметра */}
       {parameterModalOpen && (
         <ParameterModal
           isOpen={parameterModalOpen}
@@ -518,7 +502,7 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
         />
       )}
 
-      {/* Окно графика датчика */}
+
       {chartModalOpen && (
         <SensorChartModal
           isOpen={chartModalOpen}
@@ -527,7 +511,6 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
         />
       )}
 
-      {/* Окно ручного ввода данных */}
       {manualDataModalOpen && (
         <ManualDataModal
           isOpen={manualDataModalOpen}
