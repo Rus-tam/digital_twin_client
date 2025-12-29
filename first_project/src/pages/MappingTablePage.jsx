@@ -85,8 +85,6 @@ const GROUP_OPTIONS = [
   { value: "verification", label: "Верификация и контроль" },
   { value: "verification_manual", label: "Верификация и контроль (ручной ввод)" },
   { value: "laboratory", label: "Лабораторные исследования" },
-  { value: "output", label: "Выходные параметры" },
-  { value: "control", label: "Управляющие параметры" }
 ];
 
 function generateMockHistory(min, max, points) {
