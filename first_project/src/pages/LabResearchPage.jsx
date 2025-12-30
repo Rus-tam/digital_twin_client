@@ -9,54 +9,84 @@ const LabResearchPage = () => {
   const [manualEntryModalOpen, setManualEntryModalOpen] = useState(false);
   const [selectedParameter, setSelectedParameter] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [lastUpdate, setLastUpdate] = useState(Date.now());
 
-  // Загрузка лабораторных параметров из MappingTablePage
-  useEffect(() => {
-    const loadLabParameters = () => {
-      setLoading(true);
-      try {
-        const savedMapping = localStorage.getItem('mappingData');
-        if (savedMapping) {
-          const mappingData = JSON.parse(savedMapping);
+  // Функция загрузки параметров из localStorage
+  const loadLabParameters = () => {
+    setLoading(true);
+    try {
+      // Загружаем данные из localStorage
+      const savedMapping = localStorage.getItem('mappingData');
+      if (savedMapping) {
+        const mappingData = JSON.parse(savedMapping);
+        
+        // Фильтруем только параметры с группой "laboratory"
+        const labParams = mappingData.filter(row => 
+          row.group === "laboratory" && row.parameterName
+        ).map(row => ({
+          id: row.parameterId || row.id,
+          parameterName: row.parameterName,
+          unit: row.unit || "",
+          group: row.group,
+          isLaboratory: true,
+          mappingId: row.id // ID из маппинга для отслеживания
+        }));
+        
+        setLabParameters(labParams);
+        
+        // Загружаем существующие записи лабораторных данных
+        const savedLabData = localStorage.getItem('labResearchData');
+        if (savedLabData) {
+          const labData = JSON.parse(savedLabData);
           
-          const labParams = mappingData.filter(row => 
-            row.group === "laboratory" && row.parameterName
-          ).map(row => ({
-            id: row.parameterId || row.id,
-            parameterName: row.parameterName,
-            unit: row.unit || "",
-            group: row.group,
-            isLaboratory: true
-          }));
+          // Фильтруем только данные для актуальных параметров
+          const validLabData = labData.filter(entry => 
+            labParams.some(param => param.id === entry.parameterId)
+          );
           
-          setLabParameters(labParams);
-          
-          const savedLabData = localStorage.getItem('labResearchData');
-          if (savedLabData) {
-            const labData = JSON.parse(savedLabData);
-            setLabDataEntries(labData);
-          }
+          setLabDataEntries(validLabData);
         }
-      } catch (error) {
-        console.error("Ошибка загрузки лабораторных параметров:", error);
-      } finally {
-        setLoading(false);
+      } else {
+        setLabParameters([]);
+        setLabDataEntries([]);
       }
-    };
+    } catch (error) {
+      console.error("Ошибка загрузки лабораторных параметров:", error);
+      setLabParameters([]);
+      setLabDataEntries([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  // Загрузка при монтировании компонента
+  useEffect(() => {
     loadLabParameters();
     
-    const handleStorageChange = () => {
-      loadLabParameters();
+    // Слушатель для обновлений из других вкладок
+    const handleStorageChange = (e) => {
+      if (e.key === 'mappingData' || e.key === 'labResearchData') {
+        console.log('Обнаружено изменение в localStorage:', e.key);
+        loadLabParameters();
+        setLastUpdate(Date.now());
+      }
     };
     
+    // Слушаем изменения в localStorage (из других вкладок)
     window.addEventListener('storage', handleStorageChange);
+    
+    // Polling для обновления (на случай если изменения были в этой же вкладке)
+    const pollingInterval = setInterval(() => {
+      loadLabParameters();
+    }, 2000); // Проверяем каждые 2 секунды
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      clearInterval(pollingInterval);
     };
   }, []);
 
+  // Сохранение лабораторных данных в localStorage
   useEffect(() => {
     if (labDataEntries.length > 0) {
       localStorage.setItem('labResearchData', JSON.stringify(labDataEntries));
@@ -64,6 +94,24 @@ const LabResearchPage = () => {
       localStorage.removeItem('labResearchData');
     }
   }, [labDataEntries]);
+
+  // Автоматическая очистка устаревших данных при изменении параметров
+  useEffect(() => {
+    const savedLabData = localStorage.getItem('labResearchData');
+    if (savedLabData) {
+      const labData = JSON.parse(savedLabData);
+      
+      // Фильтруем только данные для актуальных параметров
+      const validLabData = labData.filter(entry => 
+        labParameters.some(param => param.id === entry.parameterId)
+      );
+      
+      // Если есть устаревшие данные - обновляем
+      if (validLabData.length !== labData.length) {
+        setLabDataEntries(validLabData);
+      }
+    }
+  }, [labParameters]);
 
   const getLabDataForParameter = (parameterId) => {
     return labDataEntries.find(entry => entry.parameterId === parameterId);
@@ -101,6 +149,9 @@ const LabResearchPage = () => {
       
       setLabDataEntries(prev => [...prev, newEntry]);
     }
+    
+    // Обновляем timestamp для триггера ререндера
+    setLastUpdate(Date.now());
   };
 
   const handleParseFile = (parsedData) => {
@@ -148,6 +199,7 @@ const LabResearchPage = () => {
   const handleDeleteLabData = (parameterId) => {
     if (window.confirm("Вы уверены, что хотите удалить результаты для этого параметра?")) {
       setLabDataEntries(prev => prev.filter(entry => entry.parameterId !== parameterId));
+      setLastUpdate(Date.now());
     }
   };
 
@@ -170,23 +222,16 @@ const LabResearchPage = () => {
   };
 
   const refreshParameters = () => {
-    const savedMapping = localStorage.getItem('mappingData');
-    if (savedMapping) {
-      const mappingData = JSON.parse(savedMapping);
-      const labParams = mappingData.filter(row => 
-        row.group === "laboratory" && row.parameterName
-      ).map(row => ({
-        id: row.parameterId || row.id,
-        parameterName: row.parameterName,
-        unit: row.unit || "",
-        group: row.group,
-        isLaboratory: true
-      }));
-      
-      setLabParameters(labParams);
-      alert(`Загружено ${labParams.length} лабораторных параметров`);
-    } else {
-      alert("Нет данных маппинга. Сначала создайте лабораторные параметры на странице маппинга.");
+    loadLabParameters();
+    const count = labParameters.length;
+    alert(`Обновлено. Найдено ${count} лабораторных параметров.`);
+  };
+
+  const clearAllData = () => {
+    if (window.confirm("Вы уверены, что хотите удалить ВСЕ результаты лабораторных исследований?")) {
+      setLabDataEntries([]);
+      localStorage.removeItem('labResearchData');
+      alert("Все данные удалены.");
     }
   };
 
@@ -200,16 +245,48 @@ const LabResearchPage = () => {
   }
 
   return (
-    <div className="lab-research-page">
+    <div className="lab-research-page" key={lastUpdate}>
       <div className="lab-research-header">
-        <h1>Ввод результатов лабораторных исследований</h1>
+        <div>
+          <h1>Ввод результатов лабораторных исследований</h1>
+          <p className="page-subtitle">
+            Параметры автоматически загружаются из страницы маппинга
+          </p>
+        </div>
         <div className="lab-actions">
           <button
             className="secondary-btn"
             onClick={refreshParameters}
+            title="Обновить список параметров"
           >
-            🔄 Обновить список параметров
+            🔄 Обновить
           </button>
+          {labDataEntries.length > 0 && (
+            <button
+              className="danger-btn"
+              onClick={clearAllData}
+              title="Удалить все данные"
+              style={{ marginLeft: '8px' }}
+            >
+              🗑️ Очистить всё
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="sync-status">
+        <div className="sync-info">
+          <span className={`sync-indicator ${labParameters.length > 0 ? 'synced' : 'not-synced'}`}>
+            ●
+          </span>
+          <span>
+            {labParameters.length > 0 
+              ? `Синхронизировано: ${labParameters.length} параметров` 
+              : 'Нет параметров для синхронизации'}
+          </span>
+        </div>
+        <div className="last-update">
+          Последнее обновление: {new Date(lastUpdate).toLocaleTimeString('ru-RU')}
         </div>
       </div>
 
@@ -219,16 +296,23 @@ const LabResearchPage = () => {
             <div className="empty-icon">🧪</div>
             <h3>Нет параметров для лабораторных исследований</h3>
             <p>
-              Для отображения параметров на этой странице необходимо 
-              пометить их как "Лабораторные исследования" на странице маппинга
+              Перейдите на страницу "Маппинг параметров и датчиков", 
+              отметьте нужные параметры как "Лабораторные исследования" и сохраните изменения.
             </p>
-            <button
-              className="primary-btn"
-              onClick={refreshParameters}
-              style={{ marginTop: "16px" }}
-            >
-              Проверить наличие параметров
-            </button>
+            <div className="empty-state-actions">
+              <button
+                className="primary-btn"
+                onClick={refreshParameters}
+              >
+                Проверить наличие параметров
+              </button>
+              <button
+                className="secondary-btn"
+                onClick={() => window.open('/mapping', '_blank')}
+              >
+                Перейти к маппингу →
+              </button>
+            </div>
           </div>
         ) : (
           <>
@@ -237,7 +321,7 @@ const LabResearchPage = () => {
               <div className="table-subtitle">
                 {labDataEntries.length > 0 
                   ? `Заполнено: ${labDataEntries.length} из ${labParameters.length}` 
-                  : "Данные не введены"}
+                  : "Данные не введены • Автоматическая синхронизация активна"}
               </div>
             </div>
             
