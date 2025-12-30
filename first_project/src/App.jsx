@@ -7,6 +7,7 @@ import Footer from "./components/Footer";
 import ModelSelectionPage from "./pages/ModelSelectionPage";
 import MappingTablePage from "./pages/MappingTablePage";
 import LabResearchPage from "./pages/LabResearchPage";
+import ProcessSchemePage from "./pages/ProcessSchemaPage";
 
 export default function App() {
   const [selectedModel, setSelectedModel] = useState(null);
@@ -47,6 +48,11 @@ export default function App() {
             path="/lab-research"
             element={<LabResearchPage />}
           />
+
+          <Route
+            path="/schema"
+            element={<ProcessSchemePage/>}
+           />
 
         </Routes>
       </main>

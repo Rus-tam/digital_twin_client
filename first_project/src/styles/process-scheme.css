@@ -1,0 +1,407 @@
+/* process-scheme.css */
+
+.process-scheme-page {
+  padding: 20px;
+  background: #f5f5f5;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.scheme-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.view-mode-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.view-mode-selector button {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.view-mode-selector button.active {
+  background: #0066cc;
+  color: white;
+  border-color: #0066cc;
+}
+
+.scheme-tools {
+  display: flex;
+  gap: 8px;
+}
+
+.tool-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tool-btn:hover {
+  background: #f5f5f5;
+}
+
+.scheme-container {
+  flex: 1;
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: auto;
+}
+
+.process-scheme {
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  min-width: 800px;
+}
+
+/* Стили для оборудования */
+.equipment {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.equipment:hover .eq-body {
+  stroke-width: 2;
+  stroke: #0066cc;
+}
+
+.eq-body {
+  fill: white;
+  stroke: #ddd;
+  stroke-width: 1;
+}
+
+.equipment.normal .eq-body {
+  fill: #e8f5e9;
+  stroke: #4caf50;
+}
+
+.equipment.warning .eq-body {
+  fill: #fff3e0;
+  stroke: #ff9800;
+}
+
+.equipment.critical .eq-body {
+  fill: #ffebee;
+  stroke: #f44336;
+}
+
+.eq-name {
+  font-size: 10px;
+  font-weight: 500;
+  fill: #333;
+}
+
+.status-dot {
+  fill: #4caf50;
+}
+
+.status-dot.warning {
+  fill: #ff9800;
+}
+
+.status-dot.critical {
+  fill: #f44336;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* Линии потока */
+.flow-line {
+  stroke: #90caf9;
+  stroke-dasharray: 5,5;
+  animation: flow 10s linear infinite;
+}
+
+.flow-line.gas_oil {
+  stroke: #81c784;
+}
+
+.flow-line.gas {
+  stroke: #4fc3f7;
+}
+
+.flow-line.oil {
+  stroke: #ffb74d;
+}
+
+@keyframes flow {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: 100; }
+}
+
+/* Панель оборудования */
+.equipment-panel {
+  position: absolute;
+  right: 30px;
+  top: 120px;
+  width: 300px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #eee;
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.panel-header button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #666;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.panel-header button:hover {
+  background: #f0f0f0;
+}
+
+.equipment-status {
+  padding: 12px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-badge.normal {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-badge.warning {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.status-badge.critical {
+  background: #ffebee;
+  color: #d32f2f;
+  animation: blink 1s infinite;
+}
+
+.parameters-list {
+  padding: 20px;
+}
+
+.parameter-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.parameter-item:last-child {
+  border-bottom: none;
+}
+
+.param-name {
+  font-size: 13px;
+  color: #666;
+  flex: 1;
+}
+
+.param-value {
+  font-family: 'Consolas', monospace;
+  font-weight: 600;
+  font-size: 14px;
+  margin: 0 12px;
+}
+
+.param-value.normal {
+  color: #2e7d32;
+}
+
+.param-value.warning {
+  color: #f57c00;
+}
+
+.param-value.critical {
+  color: #d32f2f;
+}
+
+.param-trend {
+  font-size: 11px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.trend-icon {
+  font-size: 10px;
+}
+
+.action-btn {
+  width: 100%;
+  padding: 12px;
+  background: #0066cc;
+  color: white;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.action-btn:hover {
+  background: #0056b3;
+}
+
+/* Панель тревог */
+.alarms-panel {
+  position: absolute;
+  left: 30px;
+  bottom: 30px;
+  width: 300px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  padding: 16px;
+  z-index: 100;
+}
+
+.alarms-panel h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.no-alarms {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-size: 13px;
+}
+
+/* Легенда */
+.scheme-legend {
+  position: absolute;
+  right: 30px;
+  bottom: 30px;
+  background: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 100;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.color-box {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.color-box.normal {
+  background: #4caf50;
+}
+
+.color-box.warning {
+  background: #ff9800;
+}
+
+.color-box.critical {
+  background: #f44336;
+}
+
+/* Ноды */
+.node {
+  fill: white;
+  stroke: #666;
+  stroke-width: 2;
+}
+
+.node.input {
+  fill: #81c784;
+}
+
+.node.output {
+  fill: #64b5f6;
+}
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+  .equipment-panel,
+  .alarms-panel,
+  .scheme-legend {
+    position: static;
+    width: 100%;
+    margin-top: 20px;
+  }
+  
+  .process-scheme-page {
+    height: auto;
+    padding-bottom: 20px;
+  }
+}
