@@ -1,25 +1,25 @@
-import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
-import Calendar from "../components/Calendar";
-import "../styles/header.css";
+import React, { useState } from 'react';
+import { NavLink } from 'react-router-dom';
+import Calendar from '../components/Calendar';
+import '../styles/header.css';
 
 // Моковые данные для выпадающих меню
 const ORG_OPTIONS = [
-  "ООО «Газпром добыча Оренбург»",
-  "ООО «Газпром добыча Ямбург»",
-  "ООО «Газпром добыча Астрахань»",
-  "ООО «Газпром добыча Уренгой»",
-  "ООО «Газпром добыча Надым»"
+  'ООО «Газпром добыча Оренбург»',
+  'ООО «Газпром добыча Ямбург»',
+  'ООО «Газпром добыча Астрахань»',
+  'ООО «Газпром добыча Уренгой»',
+  'ООО «Газпром добыча Надым»',
 ];
 
 export default function Header({ selectedModel }) {
-  const [activeMode, setActiveMode] = useState("Цифровой двойник");
+  const [activeMode, setActiveMode] = useState('Цифровой двойник');
   const [selectedOrg, setSelectedOrg] = useState(ORG_OPTIONS[0]);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const handleDateChange = (date) => {
+  const handleDateChange = date => {
     setSelectedDate(date);
-    console.log("Выбрана дата:", date.toLocaleDateString('ru-RU'));
+    console.log('Выбрана дата:', date.toLocaleDateString('ru-RU'));
     // Здесь можно добавить логику для обновления данных по выбранной дате
   };
 
@@ -30,14 +30,14 @@ export default function Header({ selectedModel }) {
         {/* Левая часть - кнопки режимов */}
         <div className="header-top-left">
           <button
-            className={`mode-btn ${activeMode === "Сеть" ? "active" : ""}`}
-            onClick={() => setActiveMode("Сеть")}
+            className={`mode-btn ${activeMode === 'Сеть' ? 'active' : ''}`}
+            onClick={() => setActiveMode('Сеть')}
           >
             Сеть
           </button>
           <button
-            className={`mode-btn ${activeMode === "Цифровой двойник" ? "active" : ""}`}
-            onClick={() => setActiveMode("Цифровой двойник")}
+            className={`mode-btn ${activeMode === 'Цифровой двойник' ? 'active' : ''}`}
+            onClick={() => setActiveMode('Цифровой двойник')}
           >
             Цифровой двойник
           </button>
@@ -48,20 +48,16 @@ export default function Header({ selectedModel }) {
           <select
             className="org-select"
             value={selectedOrg}
-            onChange={(e) => setSelectedOrg(e.target.value)}
+            onChange={e => setSelectedOrg(e.target.value)}
           >
-            {ORG_OPTIONS.map((org) => (
+            {ORG_OPTIONS.map(org => (
               <option key={org} value={org}>
                 {org}
               </option>
             ))}
           </select>
 
-          <Calendar
-            value={selectedDate}
-            onChange={handleDateChange}
-            placeholder="Выберите дату"
-          />
+          <Calendar value={selectedDate} onChange={handleDateChange} placeholder="Выберите дату" />
         </div>
       </div>
 
