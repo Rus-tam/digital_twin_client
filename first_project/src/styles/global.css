@@ -1,35 +1,35 @@
 :root {
   /* Цветовая схема - светлая */
-  --bg-primary: #FFFFFF;
-  --bg-secondary: #F8F9FA;
-  --bg-tertiary: #E9ECEF;
-  --bg-panel: #FFFFFF;
-  
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
+  --bg-panel: #ffffff;
+
   /* Текст */
   --text-primary: #212529;
   --text-secondary: #495057;
-  --text-tertiary: #6C757D;
-  --text-disabled: #ADB5BD;
-  
+  --text-tertiary: #6c757d;
+  --text-disabled: #adb5bd;
+
   /* Акцентные цвета - функциональные */
-  --accent-blue: #0066CC;
-  --accent-green: #28A745;
-  --accent-red: #DC3545;
-  --accent-orange: #FD7E14;
-  --accent-yellow: #FFC107;
-  
+  --accent-blue: #0066cc;
+  --accent-green: #28a745;
+  --accent-red: #dc3545;
+  --accent-orange: #fd7e14;
+  --accent-yellow: #ffc107;
+
   /* Цвета статусов по диапазонам */
-  --status-1: #28A745;      /* зелёный - норма */
-  --status-2: #FFC107;      /* жёлтый - внимание */
-  --status-3: #FD7E14;      /* оранжевый - предупреждение */
-  --status-4: #DC3545;      /* красный - авария */
-  --status-inactive: #6C757D;
-  
+  --status-1: #28a745; /* зелёный - норма */
+  --status-2: #ffc107; /* жёлтый - внимание */
+  --status-3: #fd7e14; /* оранжевый - предупреждение */
+  --status-4: #dc3545; /* красный - авария */
+  --status-inactive: #6c757d;
+
   /* Границы */
-  --border-color: #DEE2E6;
-  --border-light: #CED4DA;
-  --border-accent: #0066CC;
-  
+  --border-color: #dee2e6;
+  --border-light: #ced4da;
+  --border-accent: #0066cc;
+
   /* Размеры */
   --border-radius: 2px;
   --border-radius-lg: 4px;
@@ -64,8 +64,8 @@ body {
 }
 
 .danger-btn:hover {
-  background-color: #C82333;
-  border-color: #BD2130;
+  background-color: #c82333;
+  border-color: #bd2130;
 }
 
 .btn-sm {
@@ -75,7 +75,12 @@ body {
 }
 
 /* Типографика - строгая */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: var(--spacing-md);
@@ -127,7 +132,7 @@ p {
 }
 
 .btn:active {
-  background-color: #E2E6EA;
+  background-color: #e2e6ea;
   transform: translateY(0);
 }
 
@@ -145,8 +150,8 @@ p {
 }
 
 .btn-primary:hover {
-  background-color: #0056B3;
-  border-color: #0056B3;
+  background-color: #0056b3;
+  border-color: #0056b3;
 }
 
 .btn-success {
@@ -168,7 +173,9 @@ p {
 }
 
 /* Формы */
-input, select, textarea {
+input,
+select,
+textarea {
   font-family: inherit;
   font-size: 12px;
   color: var(--text-primary);
@@ -177,16 +184,19 @@ input, select, textarea {
   border-radius: var(--border-radius);
   padding: 6px 8px;
   transition: border-color 0.15s;
-  height: 28px;
+  height: 37px;
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
   outline: none;
   border-color: var(--accent-blue);
   box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
 }
 
-input::placeholder, textarea::placeholder {
+input::placeholder,
+textarea::placeholder {
   color: var(--text-tertiary);
 }
 

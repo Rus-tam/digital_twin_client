@@ -70,6 +70,9 @@ export default function Header({ selectedModel }) {
             <NavLink to="/" end className="nav-item">
               Модели
             </NavLink>
+            <NavLink to="/manual-sensors" className="nav-item">
+              Локальные датчика
+            </NavLink>
             <NavLink to="/mapping" className="nav-item">
               Маппинг-таблица
             </NavLink>
