@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import FileParserModal from "../components/FileParserModal";
-import "../styles/lab-research.css";
+import React, { useState, useEffect } from 'react';
+import FileParserModal from '../components/FileParserModal';
+import '../styles/lab-research.css';
 
 const LabResearchPage = () => {
   const [labDataEntries, setLabDataEntries] = useState([]);
@@ -19,31 +19,31 @@ const LabResearchPage = () => {
       const savedMapping = localStorage.getItem('mappingData');
       if (savedMapping) {
         const mappingData = JSON.parse(savedMapping);
-        
+
         // Фильтруем только параметры с группой "laboratory"
-        const labParams = mappingData.filter(row => 
-          row.group === "laboratory" && row.parameterName
-        ).map(row => ({
-          id: row.parameterId || row.id,
-          parameterName: row.parameterName,
-          unit: row.unit || "",
-          group: row.group,
-          isLaboratory: true,
-          mappingId: row.id // ID из маппинга для отслеживания
-        }));
-        
+        const labParams = mappingData
+          .filter(row => row.group === 'laboratory' && row.parameterName)
+          .map(row => ({
+            id: row.parameterId || row.id,
+            parameterName: row.parameterName,
+            unit: row.unit || '',
+            group: row.group,
+            isLaboratory: true,
+            mappingId: row.id, // ID из маппинга для отслеживания
+          }));
+
         setLabParameters(labParams);
-        
+
         // Загружаем существующие записи лабораторных данных
         const savedLabData = localStorage.getItem('labResearchData');
         if (savedLabData) {
           const labData = JSON.parse(savedLabData);
-          
+
           // Фильтруем только данные для актуальных параметров
-          const validLabData = labData.filter(entry => 
+          const validLabData = labData.filter(entry =>
             labParams.some(param => param.id === entry.parameterId)
           );
-          
+
           setLabDataEntries(validLabData);
         }
       } else {
@@ -51,7 +51,7 @@ const LabResearchPage = () => {
         setLabDataEntries([]);
       }
     } catch (error) {
-      console.error("Ошибка загрузки лабораторных параметров:", error);
+      console.error('Ошибка загрузки лабораторных параметров:', error);
       setLabParameters([]);
       setLabDataEntries([]);
     } finally {
@@ -62,24 +62,24 @@ const LabResearchPage = () => {
   // Загрузка при монтировании компонента
   useEffect(() => {
     loadLabParameters();
-    
+
     // Слушатель для обновлений из других вкладок
-    const handleStorageChange = (e) => {
+    const handleStorageChange = e => {
       if (e.key === 'mappingData' || e.key === 'labResearchData') {
         console.log('Обнаружено изменение в localStorage:', e.key);
         loadLabParameters();
         setLastUpdate(Date.now());
       }
     };
-    
+
     // Слушаем изменения в localStorage (из других вкладок)
     window.addEventListener('storage', handleStorageChange);
-    
+
     // Polling для обновления (на случай если изменения были в этой же вкладке)
     const pollingInterval = setInterval(() => {
       loadLabParameters();
     }, 2000); // Проверяем каждые 2 секунды
-    
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       clearInterval(pollingInterval);
@@ -100,12 +100,12 @@ const LabResearchPage = () => {
     const savedLabData = localStorage.getItem('labResearchData');
     if (savedLabData) {
       const labData = JSON.parse(savedLabData);
-      
+
       // Фильтруем только данные для актуальных параметров
-      const validLabData = labData.filter(entry => 
+      const validLabData = labData.filter(entry =>
         labParameters.some(param => param.id === entry.parameterId)
       );
-      
+
       // Если есть устаревшие данные - обновляем
       if (validLabData.length !== labData.length) {
         setLabDataEntries(validLabData);
@@ -113,100 +113,106 @@ const LabResearchPage = () => {
     }
   }, [labParameters]);
 
-  const getLabDataForParameter = (parameterId) => {
+  const getLabDataForParameter = parameterId => {
     return labDataEntries.find(entry => entry.parameterId === parameterId);
   };
 
   const createOrUpdateLabData = (parameterId, data) => {
     const existingEntry = getLabDataForParameter(parameterId);
     const parameter = labParameters.find(p => p.id === parameterId);
-    
+
     if (existingEntry) {
-      setLabDataEntries(prev => prev.map(entry => 
-        entry.parameterId === parameterId 
-          ? { 
-              ...entry, 
-              ...data, 
-              parameterName: parameter?.parameterName || entry.parameterName,
-              unit: parameter?.unit || entry.unit,
-              updatedAt: new Date().toISOString(),
-              updatedAtFormatted: new Date().toLocaleDateString('ru-RU')
-            }
-          : entry
-      ));
+      setLabDataEntries(prev =>
+        prev.map(entry =>
+          entry.parameterId === parameterId
+            ? {
+                ...entry,
+                ...data,
+                parameterName: parameter?.parameterName || entry.parameterName,
+                unit: parameter?.unit || entry.unit,
+                updatedAt: new Date().toISOString(),
+                updatedAtFormatted: new Date().toLocaleDateString('ru-RU'),
+              }
+            : entry
+        )
+      );
     } else {
       const newEntry = {
         id: Date.now().toString(),
         parameterId,
-        parameterName: parameter?.parameterName || "",
-        unit: parameter?.unit || "",
+        parameterName: parameter?.parameterName || '',
+        unit: parameter?.unit || '',
         ...data,
         createdAt: new Date().toISOString(),
         createdAtFormatted: new Date().toLocaleDateString('ru-RU'),
         updatedAt: new Date().toISOString(),
-        updatedAtFormatted: new Date().toLocaleDateString('ru-RU')
+        updatedAtFormatted: new Date().toLocaleDateString('ru-RU'),
       };
-      
+
       setLabDataEntries(prev => [...prev, newEntry]);
     }
-    
+
     // Обновляем timestamp для триггера ререндера
     setLastUpdate(Date.now());
   };
 
-  const handleParseFile = (parsedData) => {
+  const handleParseFile = parsedData => {
     if (!selectedParameter) return;
-    
+
     createOrUpdateLabData(selectedParameter.id, {
       value: parsedData.value,
       unit: parsedData.unit,
-      source: "file",
+      source: 'file',
       fileName: parsedData.fileName,
       analysisDate: parsedData.analysisDate || new Date().toISOString(),
-      analysisDateFormatted: parsedData.analysisDate ? 
-        new Date(parsedData.analysisDate).toLocaleDateString('ru-RU') : 
-        new Date().toLocaleDateString('ru-RU'),
-      labName: parsedData.labName || "Лаборатория",
-      method: parsedData.method || "Анализ",
-      notes: parsedData.notes || ""
+      analysisDateFormatted: parsedData.analysisDate
+        ? new Date(parsedData.analysisDate).toLocaleDateString('ru-RU')
+        : new Date().toLocaleDateString('ru-RU'),
+      labName: parsedData.labName || 'Лаборатория',
+      method: parsedData.method || 'Анализ',
+      notes: parsedData.notes || '',
     });
-    
+
     setFileParserModalOpen(false);
     setSelectedParameter(null);
   };
 
-  const handleSaveManualEntry = (data) => {
+  const handleSaveManualEntry = data => {
     if (!selectedParameter) return;
-    
+
     createOrUpdateLabData(selectedParameter.id, {
       value: data.value,
       unit: data.unit,
-      source: "manual",
+      source: 'manual',
       analysisDate: data.analysisDate || new Date().toISOString(),
-      analysisDateFormatted: data.analysisDate ? 
-        new Date(data.analysisDate).toLocaleDateString('ru-RU') : 
-        new Date().toLocaleDateString('ru-RU'),
-      labName: data.labName || "",
-      method: data.method || "",
-      notes: data.notes || "",
-      analyst: data.analyst || ""
+      analysisDateFormatted: data.analysisDate
+        ? new Date(data.analysisDate).toLocaleDateString('ru-RU')
+        : new Date().toLocaleDateString('ru-RU'),
+      labName: data.labName || '',
+      method: data.method || '',
+      notes: data.notes || '',
+      analyst: data.analyst || '',
     });
-    
+
     setManualEntryModalOpen(false);
     setSelectedParameter(null);
   };
 
-  const handleDeleteLabData = (parameterId) => {
-    if (window.confirm("Вы уверены, что хотите удалить результаты для этого параметра?")) {
+  const handleDeleteLabData = parameterId => {
+    if (window.confirm('Вы уверены, что хотите удалить результаты для этого параметра?')) {
       setLabDataEntries(prev => prev.filter(entry => entry.parameterId !== parameterId));
       setLastUpdate(Date.now());
     }
   };
 
-  const openManualEntryModal = (parameter) => {
+  const openManualEntryModal = parameter => {
     const existingData = getLabDataForParameter(parameter.id);
     if (existingData) {
-      if (window.confirm(`Для параметра "${parameter.parameterName}" уже есть результат (${existingData.value} ${existingData.unit}). Хотите изменить его?`)) {
+      if (
+        window.confirm(
+          `Для параметра "${parameter.parameterName}" уже есть результат (${existingData.value} ${existingData.unit}). Хотите изменить его?`
+        )
+      ) {
         setSelectedParameter(parameter);
         setManualEntryModalOpen(true);
       }
@@ -216,7 +222,7 @@ const LabResearchPage = () => {
     }
   };
 
-  const openFileParserModal = (parameter) => {
+  const openFileParserModal = parameter => {
     setSelectedParameter(parameter);
     setFileParserModalOpen(true);
   };
@@ -228,10 +234,12 @@ const LabResearchPage = () => {
   };
 
   const clearAllData = () => {
-    if (window.confirm("Вы уверены, что хотите удалить ВСЕ результаты лабораторных исследований?")) {
+    if (
+      window.confirm('Вы уверены, что хотите удалить ВСЕ результаты лабораторных исследований?')
+    ) {
       setLabDataEntries([]);
       localStorage.removeItem('labResearchData');
-      alert("Все данные удалены.");
+      alert('Все данные удалены.');
     }
   };
 
@@ -249,9 +257,7 @@ const LabResearchPage = () => {
       <div className="lab-research-header">
         <div>
           <h1>Ввод результатов лабораторных исследований</h1>
-          <p className="page-subtitle">
-            Параметры автоматически загружаются из страницы маппинга
-          </p>
+          <p className="page-subtitle">Параметры автоматически загружаются из страницы маппинга</p>
         </div>
         <div className="lab-actions">
           <button
@@ -280,8 +286,8 @@ const LabResearchPage = () => {
             ●
           </span>
           <span>
-            {labParameters.length > 0 
-              ? `Синхронизировано: ${labParameters.length} параметров` 
+            {labParameters.length > 0
+              ? `Синхронизировано: ${labParameters.length} параметров`
               : 'Нет параметров для синхронизации'}
           </span>
         </div>
@@ -296,20 +302,14 @@ const LabResearchPage = () => {
             <div className="empty-icon">🧪</div>
             <h3>Нет параметров для лабораторных исследований</h3>
             <p>
-              Перейдите на страницу "Маппинг параметров и датчиков", 
-              отметьте нужные параметры как "Лабораторные исследования" и сохраните изменения.
+              Перейдите на страницу "Маппинг параметров и датчиков", отметьте нужные параметры как
+              "Лабораторные исследования" и сохраните изменения.
             </p>
             <div className="empty-state-actions">
-              <button
-                className="primary-btn"
-                onClick={refreshParameters}
-              >
+              <button className="primary-btn" onClick={refreshParameters}>
                 Проверить наличие параметров
               </button>
-              <button
-                className="secondary-btn"
-                onClick={() => window.open('/mapping', '_blank')}
-              >
+              <button className="secondary-btn" onClick={() => window.open('/mapping', '_blank')}>
                 Перейти к маппингу →
               </button>
             </div>
@@ -319,12 +319,12 @@ const LabResearchPage = () => {
             <div className="table-header">
               <h2>Результаты лабораторных исследований ({labParameters.length})</h2>
               <div className="table-subtitle">
-                {labDataEntries.length > 0 
-                  ? `Заполнено: ${labDataEntries.length} из ${labParameters.length}` 
-                  : "Данные не введены • Автоматическая синхронизация активна"}
+                {labDataEntries.length > 0
+                  ? `Заполнено: ${labDataEntries.length} из ${labParameters.length}`
+                  : 'Данные не введены • Автоматическая синхронизация активна'}
               </div>
             </div>
-            
+
             <div className="table-wrapper">
               <table className="lab-data-table">
                 <thead>
@@ -339,7 +339,7 @@ const LabResearchPage = () => {
                 <tbody>
                   {labParameters.map(parameter => {
                     const labData = getLabDataForParameter(parameter.id);
-                    
+
                     return (
                       <tr key={parameter.id} className="lab-data-row">
                         <td>
@@ -348,11 +348,11 @@ const LabResearchPage = () => {
                             <div className="parameter-id">ID: {parameter.id}</div>
                           </div>
                         </td>
-                        
+
                         <td>
-                          <div className="parameter-unit">{parameter.unit || "-"}</div>
+                          <div className="parameter-unit">{parameter.unit || '-'}</div>
                         </td>
-                        
+
                         <td>
                           {labData ? (
                             <div className="lab-result">
@@ -360,32 +360,28 @@ const LabResearchPage = () => {
                                 {labData.value} {labData.unit || parameter.unit}
                               </div>
                               <div className="result-source">
-                                {labData.source === "file" ? "📄 Файл" : "✍️ Ручной"}
+                                {labData.source === 'file' ? '📄 Файл' : '✍️ Ручной'}
                               </div>
                             </div>
                           ) : (
                             <span className="no-data">—</span>
                           )}
                         </td>
-                        
+
                         <td>
                           {labData ? (
                             <div className="analysis-info">
                               <div className="analysis-date">
                                 Дата: {labData.analysisDateFormatted || labData.updatedAtFormatted}
                               </div>
-                              {labData.labName && (
-                                <div className="lab-name">{labData.labName}</div>
-                              )}
-                              {labData.method && (
-                                <div className="method">{labData.method}</div>
-                              )}
+                              {labData.labName && <div className="lab-name">{labData.labName}</div>}
+                              {labData.method && <div className="method">{labData.method}</div>}
                             </div>
                           ) : (
                             <span className="no-data">—</span>
                           )}
                         </td>
-                        
+
                         <td>
                           <div className="lab-actions-buttons">
                             <button
@@ -395,7 +391,7 @@ const LabResearchPage = () => {
                             >
                               ✍️ Вручную
                             </button>
-                            
+
                             <button
                               className="file-btn btn-sm"
                               onClick={() => openFileParserModal(parameter)}
@@ -403,7 +399,7 @@ const LabResearchPage = () => {
                             >
                               📁 Из файла
                             </button>
-                            
+
                             {labData && (
                               <button
                                 className="remove-btn btn-sm"
@@ -428,10 +424,10 @@ const LabResearchPage = () => {
       {labParameters.length > 0 && (
         <div className="summary-info">
           <div className="summary-text">
-            Всего параметров: <strong>{labParameters.length}</strong> | 
-            С результатами: <strong>{labDataEntries.length}</strong> |
-            Из файлов: <strong>{labDataEntries.filter(d => d.source === "file").length}</strong> |
-            Ручной ввод: <strong>{labDataEntries.filter(d => d.source === "manual").length}</strong>
+            Всего параметров: <strong>{labParameters.length}</strong> | С результатами:{' '}
+            <strong>{labDataEntries.length}</strong> | Из файлов:{' '}
+            <strong>{labDataEntries.filter(d => d.source === 'file').length}</strong> | Ручной ввод:{' '}
+            <strong>{labDataEntries.filter(d => d.source === 'manual').length}</strong>
           </div>
           <div className="data-status">
             {labDataEntries.length > 0 ? '✅ Данные сохранены' : '⚠️ Данные не введены'}
@@ -469,13 +465,14 @@ const LabResearchPage = () => {
 
 const ManualEntryModal = ({ isOpen, onClose, onSave, parameter, existingData }) => {
   const [formData, setFormData] = useState({
-    value: existingData?.value || "",
-    unit: existingData?.unit || parameter?.unit || "",
-    analysisDate: existingData?.analysisDate?.split('T')[0] || new Date().toISOString().split('T')[0],
-    labName: existingData?.labName || "",
-    method: existingData?.method || "",
-    analyst: existingData?.analyst || "",
-    notes: existingData?.notes || ""
+    value: existingData?.value || '',
+    unit: existingData?.unit || parameter?.unit || '',
+    analysisDate:
+      existingData?.analysisDate?.split('T')[0] || new Date().toISOString().split('T')[0],
+    labName: existingData?.labName || '',
+    method: existingData?.method || '',
+    analyst: existingData?.analyst || '',
+    notes: existingData?.notes || '',
   });
 
   const handleChange = (field, value) => {
@@ -483,8 +480,8 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, parameter, existingData }) 
   };
 
   const handleSubmit = () => {
-    if (!formData.value || formData.value.trim() === "") {
-      alert("Пожалуйста, введите значение");
+    if (!formData.value || formData.value.trim() === '') {
+      alert('Пожалуйста, введите значение');
       return;
     }
 
@@ -497,10 +494,10 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, parameter, existingData }) 
     <div className="modal-backdrop">
       <div className="modal lab-modal">
         <div className="modal-header">
-          <h2>
-            {existingData ? "Редактирование результата" : "Ввод лабораторного результата"}
-          </h2>
-          <button className="close-btn" onClick={onClose}>×</button>
+          <h2>{existingData ? 'Редактирование результата' : 'Ввод лабораторного результата'}</h2>
+          <button className="close-btn" onClick={onClose}>
+            ×
+          </button>
         </div>
 
         <div className="modal-content">
@@ -516,14 +513,14 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, parameter, existingData }) 
               <input
                 type="text"
                 value={formData.value}
-                onChange={(e) => handleChange("value", e.target.value)}
+                onChange={e => handleChange('value', e.target.value)}
                 className="form-input"
                 placeholder="Введите значение..."
               />
               <input
                 type="text"
                 value={formData.unit}
-                onChange={(e) => handleChange("unit", e.target.value)}
+                onChange={e => handleChange('unit', e.target.value)}
                 className="form-input unit-input"
                 placeholder="Ед. изм."
               />
@@ -535,7 +532,7 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, parameter, existingData }) 
             <input
               type="date"
               value={formData.analysisDate}
-              onChange={(e) => handleChange("analysisDate", e.target.value)}
+              onChange={e => handleChange('analysisDate', e.target.value)}
               className="form-input"
             />
           </div>
@@ -545,7 +542,7 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, parameter, existingData }) 
             <input
               type="text"
               value={formData.labName}
-              onChange={(e) => handleChange("labName", e.target.value)}
+              onChange={e => handleChange('labName', e.target.value)}
               className="form-input"
               placeholder="Название лаборатории"
             />
@@ -556,7 +553,7 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, parameter, existingData }) 
             <input
               type="text"
               value={formData.method}
-              onChange={(e) => handleChange("method", e.target.value)}
+              onChange={e => handleChange('method', e.target.value)}
               className="form-input"
               placeholder="Метод анализа (ГОСТ, ASTM и т.д.)"
             />
@@ -567,7 +564,7 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, parameter, existingData }) 
             <input
               type="text"
               value={formData.analyst}
-              onChange={(e) => handleChange("analyst", e.target.value)}
+              onChange={e => handleChange('analyst', e.target.value)}
               className="form-input"
               placeholder="ФИО аналитика"
             />
@@ -577,7 +574,7 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, parameter, existingData }) 
             <label className="form-label">Примечания</label>
             <textarea
               value={formData.notes}
-              onChange={(e) => handleChange("notes", e.target.value)}
+              onChange={e => handleChange('notes', e.target.value)}
               className="form-input"
               rows="3"
               placeholder="Дополнительная информация..."
@@ -589,7 +586,7 @@ const ManualEntryModal = ({ isOpen, onClose, onSave, parameter, existingData }) 
               Отмена
             </button>
             <button className="primary-btn" onClick={handleSubmit}>
-              {existingData ? "Обновить" : "Сохранить"}
+              {existingData ? 'Обновить' : 'Сохранить'}
             </button>
           </div>
         </div>

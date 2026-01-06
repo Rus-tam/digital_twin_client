@@ -135,6 +135,11 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
     return units[type] || 'ед.';
   };
 
+  // Получение единиц измерения для отображения
+  const getDisplayUnit = sensor => {
+    return sensor.unit || getDefaultUnit(sensor.type);
+  };
+
   const addParameter = parameter => {
     const newRow = {
       id: Date.now().toString(),
@@ -165,9 +170,9 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
             }
           }
 
-          // Если выбрана лабораторная группа, очищаем датчик
+          // Если выбрана лабораторная группа, оставляем возможность выбора датчика
           if (field === 'group' && value === 'laboratory') {
-            updatedRow.sensorId = '';
+            // Не очищаем sensorId, позволяем выбрать датчик
           }
 
           // Если выбран датчик, и это ручной датчик, загружаем его данные
@@ -218,17 +223,29 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
   };
 
   const getFilteredSensors = (rowId, groupType) => {
-    if (groupType === 'laboratory') {
-      return [];
-    }
-
     const row = mappingRows.find(r => r.id === rowId);
     if (!row) return getAllSensors();
 
     const paramName = row.parameterName || '';
     let filteredSensors = getAllSensors();
 
-    // Фильтрация по типу параметра
+    // Для лабораторных исследований показываем только датчики типа "состав" и "качество"
+    if (groupType === 'laboratory') {
+      filteredSensors = manualSensors.filter(
+        s => (s.type === 'composition' || s.type === 'quality') && s.status !== 'disabled'
+      );
+
+      // Также фильтруем по названию параметра, если он связан с качеством или составом
+      if (paramName.toLowerCase().includes('состав')) {
+        filteredSensors = filteredSensors.filter(s => s.type === 'composition');
+      } else if (paramName.toLowerCase().includes('качеств')) {
+        filteredSensors = filteredSensors.filter(s => s.type === 'quality');
+      }
+
+      return filteredSensors;
+    }
+
+    // Для обычных групп - фильтрация по типу параметра
     if (paramName.toLowerCase().includes('температур')) {
       filteredSensors = filteredSensors.filter(s => s.type === 'temperature');
     } else if (paramName.toLowerCase().includes('давлен')) {
@@ -239,6 +256,8 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
       filteredSensors = filteredSensors.filter(s => s.type === 'level');
     } else if (paramName.toLowerCase().includes('качеств')) {
       filteredSensors = filteredSensors.filter(s => s.type === 'quality');
+    } else if (paramName.toLowerCase().includes('состав')) {
+      filteredSensors = filteredSensors.filter(s => s.type === 'composition');
     }
 
     // Фильтрация по типу группы
@@ -307,7 +326,7 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
                 newManualData.length > 0 ? newManualData[newManualData.length - 1].value : null,
               lastUpdate:
                 newManualData.length > 0
-                  ? newDate(newManualData[newManualData.length - 1].timestamp).toISOString()
+                  ? new Date(newManualData[newManualData.length - 1].timestamp).toISOString()
                   : null,
               status: newManualData.length > 0 ? 'normal' : 'inactive',
             };
@@ -452,23 +471,12 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
                     <td>
                       {!row.group ? (
                         <span className="no-group">Сначала выберите группу</span>
-                      ) : isLaboratoryGroupSelected ? (
-                        <div className="laboratory-info">
-                          <div className="laboratory-label">
-                            <span className="lab-icon">🧪</span>
-                            <span>Лабораторные исследования</span>
-                          </div>
-                          <div className="laboratory-hint">
-                            Значения будут вводиться на отдельной странице лабораторных данных
-                          </div>
-                        </div>
                       ) : (
                         <div className="sensor-selection">
                           <select
                             value={row.sensorId}
                             onChange={e => updateRow(row.id, 'sensorId', e.target.value)}
                             className="sensor-select"
-                            disabled={isLaboratoryGroupSelected}
                           >
                             <option value="">— выбрать датчик —</option>
                             {sensors.map(sensor => (
@@ -477,36 +485,58 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
                                 value={sensor.id}
                                 title={
                                   sensor.isManual
-                                    ? `${sensor.description || 'Ручной датчик'}\nМестоположение: ${sensor.location || 'Не указано'}`
+                                    ? `${sensor.description || 'Ручной датчик'}\nТип: ${sensor.type}\nМестоположение: ${sensor.location || 'Не указано'}`
                                     : sensor.name
                                 }
                               >
-                                {sensor.name} {sensor.isManual ? `(ручной - ${sensor.unit})` : ''}
+                                {sensor.name}{' '}
+                                {sensor.isManual ? `(ручной - ${getDisplayUnit(sensor)})` : ''}
+                                {isLaboratoryGroupSelected &&
+                                  sensor.isManual &&
+                                  ` [${sensor.type === 'composition' ? 'Состав' : 'Качество'}]`}
                               </option>
                             ))}
                           </select>
 
-                          {isManualGroupSelected &&
-                            manualSensors.length === 0 &&
+                          {isLaboratoryGroupSelected &&
+                            manualSensors.filter(
+                              s => s.type === 'composition' || s.type === 'quality'
+                            ).length === 0 &&
                             !selectedSensor && (
                               <div className="no-manual-sensors-warning">
                                 <span style={{ color: '#dc3545', fontSize: '12px' }}>
-                                  ⚠️ Нет доступных ручных датчиков. Создайте их на странице
-                                  "Локальные датчики"
+                                  ⚠️ Нет доступных датчиков для лабораторных исследований. Создайте
+                                  датчики типа "Состав" или "Качество" на странице "Локальные
+                                  датчики"
                                 </span>
                               </div>
                             )}
 
-                          {selectedSensor && !isLaboratoryGroupSelected && (
+                          {selectedSensor && (
                             <div className="sensor-info-row">
                               <div className="current-value-display">
-                                {isManualGroupSelected ? (
+                                {isLaboratoryGroupSelected ? (
+                                  <>
+                                    <span className="value-label">Лабораторный датчик:</span>
+                                    <span className="value-number">{selectedSensor.name}</span>
+                                    <span
+                                      className="value-label"
+                                      style={{ marginLeft: '8px', fontSize: '12px' }}
+                                    >
+                                      (
+                                      {selectedSensor.type === 'composition'
+                                        ? 'Состав'
+                                        : 'Качество'}
+                                      )
+                                    </span>
+                                  </>
+                                ) : isManualGroupSelected ? (
                                   <>
                                     <span className="value-label">Последнее значение:</span>
                                     {lastManualValue ? (
                                       <>
                                         <span className="value-number">
-                                          {lastManualValue.value} {selectedSensor.unit}
+                                          {lastManualValue.value} {getDisplayUnit(selectedSensor)}
                                         </span>
                                         <span className="value-label" style={{ marginLeft: '8px' }}>
                                           (
@@ -524,7 +554,7 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
                                   <>
                                     <span className="value-label">Текущее значение:</span>
                                     <span className="value-number">
-                                      {selectedSensor.currentValue} {selectedSensor.unit}
+                                      {selectedSensor.currentValue} {getDisplayUnit(selectedSensor)}
                                     </span>
                                     <span
                                       className={`status-indicator ${selectedSensor.status}`}
@@ -586,11 +616,14 @@ export default function MappingTablePage({ mappingData = [], onMappingDataChange
           <div className="summary-info">
             <div className="summary-text">
               Всего параметров: <strong>{mappingRows.length}</strong> | Связано с датчиками:{' '}
-              <strong>{mappingRows.filter(r => r.sensorId && !r.isLaboratory).length}</strong> |
-              Ручной ввод: <strong>{mappingRows.filter(r => isManualGroup(r.group)).length}</strong>{' '}
-              | Лабораторные исследования:{' '}
-              <strong>{mappingRows.filter(r => r.isLaboratory).length}</strong> | Ручных датчиков
-              доступно: <strong>{manualSensors.filter(s => s.status !== 'disabled').length}</strong>
+              <strong>{mappingRows.filter(r => r.sensorId).length}</strong> | Ручной ввод:{' '}
+              <strong>{mappingRows.filter(r => isManualGroup(r.group)).length}</strong> |
+              Лабораторные исследования:{' '}
+              <strong>{mappingRows.filter(r => r.isLaboratory).length}</strong> | Датчиков
+              "Состав/Качество":{' '}
+              <strong>
+                {manualSensors.filter(s => s.type === 'composition' || s.type === 'quality').length}
+              </strong>
             </div>
             <div className="data-status">
               {localStorage.getItem('mappingData')

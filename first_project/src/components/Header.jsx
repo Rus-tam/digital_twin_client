@@ -71,7 +71,7 @@ export default function Header({ selectedModel }) {
               Модели
             </NavLink>
             <NavLink to="/manual-sensors" className="nav-item">
-              Локальные датчика
+              Локальные датчики
             </NavLink>
             <NavLink to="/mapping" className="nav-item">
               Маппинг-таблица
