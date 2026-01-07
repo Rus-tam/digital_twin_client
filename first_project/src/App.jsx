@@ -9,6 +9,7 @@ import MappingTablePage from './pages/MappingTablePage';
 import LabResearchPage from './pages/LabResearchPage';
 import ProcessSchemePage from './pages/ProcessSchemaPage';
 import ManualSensorsPage from './pages/ManualSensorsPage';
+import ManualDataEntryPage from './pages/ManualDataEntryPage';
 
 export default function App() {
   const [selectedModel, setSelectedModel] = useState(null);
@@ -46,6 +47,7 @@ export default function App() {
           />
 
           <Route path="/lab-research" element={<LabResearchPage />} />
+          <Route path="/manual-data-entry" element={<ManualDataEntryPage />} />
 
           <Route path="/schema" element={<ProcessSchemePage />} />
         </Routes>

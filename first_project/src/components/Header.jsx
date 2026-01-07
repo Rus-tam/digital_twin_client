@@ -79,6 +79,9 @@ export default function Header({ selectedModel }) {
             <NavLink to="/lab-research" className="nav-item">
               Лабораторные исследования
             </NavLink>
+            <NavLink to="/manual-data-entry" className="nav-item">
+              Ввод показаний датчиков
+            </NavLink>
 
             <NavLink to="/schema" className="nav-item">
               Схема
